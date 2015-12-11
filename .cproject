@@ -17,73 +17,142 @@
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 				<configuration artifactExtension="axf" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="Debug build" errorParsers="org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="com.crt.advproject.config.exe.debug.897255787" name="Debug" parent="com.crt.advproject.config.exe.debug" postannouncebuildStep="Performing post-build steps" postbuildStep="arm-none-eabi-size &quot;${BuildArtifactFileName}&quot;; # arm-none-eabi-objcopy -v -O binary &quot;${BuildArtifactFileName}&quot; &quot;${BuildArtifactFileBaseName}.bin&quot; ; # checksum -p ${TargetChip} -d &quot;${BuildArtifactFileBaseName}.bin&quot;;  ">
 					<folderInfo id="com.crt.advproject.config.exe.debug.897255787." name="/" resourcePath="">
-						<toolChain id="com.crt.advproject.toolchain.exe.debug.475703418" name="Code Red MCU Tools" superClass="com.crt.advproject.toolchain.exe.debug">
-							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.debug.1885082836" name="ARM-based MCU (Debug)" superClass="com.crt.advproject.platform.exe.debug"/>
-							<builder buildPath="${workspace_loc:/freertos_blinky}/Debug" id="com.crt.advproject.builder.exe.debug.131076519" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="com.crt.advproject.builder.exe.debug"/>
-							<tool id="com.crt.advproject.cpp.exe.debug.24640360" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug"/>
-							<tool id="com.crt.advproject.gcc.exe.debug.1225049255" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug">
-								<option id="com.crt.advproject.gcc.arch.1785617816" name="Architecture" superClass="com.crt.advproject.gcc.arch" value="com.crt.advproject.gcc.target.cm3" valueType="enumerated"/>
-								<option id="com.crt.advproject.gcc.thumb.1504482304" name="Thumb mode" superClass="com.crt.advproject.gcc.thumb" value="true" valueType="boolean"/>
-								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1136576417" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="__REDLIB__"/>
+						<toolChain id="com.crt.advproject.toolchain.exe.debug.807484743" name="NXP MCU Tools" superClass="com.crt.advproject.toolchain.exe.debug">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.debug.482924589" name="ARM-based MCU (Debug)" superClass="com.crt.advproject.platform.exe.debug"/>
+							<builder buildPath="${workspace_loc:/temperature_sender}/Debug" id="com.crt.advproject.builder.exe.debug.1708974630" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="com.crt.advproject.builder.exe.debug"/>
+							<tool id="com.crt.advproject.cpp.exe.debug.859602440" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug"/>
+							<tool id="com.crt.advproject.gcc.exe.debug.1523307521" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug">
+								<option id="gnu.c.compiler.option.include.paths.99173117" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx.cmsis.driver.library/Include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/example}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/example/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/freertos/inc}&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.806309551" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
 									<listOptionValue builtIn="false" value="__CODE_RED"/>
 									<listOptionValue builtIn="false" value="__USE_LPCOPEN"/>
 									<listOptionValue builtIn="false" value="CORE_M3"/>
+									<listOptionValue builtIn="false" value="__REDLIB__"/>
 								</option>
-								<option id="gnu.c.compiler.option.misc.other.1626260101" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
-								<option id="com.crt.advproject.gcc.hdrlib.1264795552" name="Library headers" superClass="com.crt.advproject.gcc.hdrlib" value="Redlib" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.include.paths.704103929" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/example/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/freertos/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="/lpc17xx-FreeRTOS-driver-library"/>
-									<listOptionValue builtIn="false" value="/home/pierre/workspace-lxp/freertos_blinky/example"/>
-								</option>
-								<option id="com.crt.advproject.gcc.lto.751188363" name="Enable Link-time optimization (-flto)" superClass="com.crt.advproject.gcc.lto" value="false" valueType="boolean"/>
-								<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.629647529" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" value="gnu.c.optimization.level.none" valueType="enumerated"/>
-								<inputType id="com.crt.advproject.compiler.input.438723982" superClass="com.crt.advproject.compiler.input"/>
+								<option id="gnu.c.compiler.option.include.files.1098116232" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files"/>
+								<option id="com.crt.advproject.gcc.arch.1301924606" name="Architecture" superClass="com.crt.advproject.gcc.arch" value="com.crt.advproject.gcc.target.cm3" valueType="enumerated"/>
+								<option id="com.crt.advproject.gcc.thumb.2117161386" name="Thumb mode" superClass="com.crt.advproject.gcc.thumb" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.gcc.hdrlib.1178330416" name="Library headers" superClass="com.crt.advproject.gcc.hdrlib" value="com.crt.advproject.gcc.hdrlib.codered" valueType="enumerated"/>
+								<option id="com.crt.advproject.gcc.specs.1363888273" name="Specs" superClass="com.crt.advproject.gcc.specs" value="com.crt.advproject.gcc.specs.codered" valueType="enumerated"/>
+								<inputType id="com.crt.advproject.compiler.input.1717862733" superClass="com.crt.advproject.compiler.input"/>
 							</tool>
-							<tool id="com.crt.advproject.gas.exe.debug.51313821" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.debug">
-								<option id="com.crt.advproject.gas.arch.685102347" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm3" valueType="enumerated"/>
-								<option id="com.crt.advproject.gas.thumb.2083980156" name="Thumb mode" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
-								<option id="gnu.both.asm.option.flags.crt.955336437" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__REDLIB__ -DDEBUG -D__CODE_RED" valueType="string"/>
-								<option id="com.crt.advproject.gas.hdrlib.1027946526" name="Library headers" superClass="com.crt.advproject.gas.hdrlib" value="Redlib" valueType="enumerated"/>
-								<option id="gnu.both.asm.option.include.paths.1663617495" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+							<tool id="com.crt.advproject.gas.exe.debug.720096580" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.debug">
+								<option id="com.crt.advproject.gas.arch.203831855" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm3" valueType="enumerated"/>
+								<option id="com.crt.advproject.gas.thumb.624468545" name="Thumb mode" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.gas.hdrlib.1332141458" name="Library headers" superClass="com.crt.advproject.gas.hdrlib" value="com.crt.advproject.gas.hdrlib.codered" valueType="enumerated"/>
+								<option id="com.crt.advproject.gas.specs.1821053369" name="Specs" superClass="com.crt.advproject.gas.specs" value="com.crt.advproject.gas.specs.codered" valueType="enumerated"/>
+								<option id="gnu.both.asm.option.include.paths.75839853" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x}&quot;"/>
-									<listOptionValue builtIn="false" value="/lpc_board_nxp_lpcxpresso_1769"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx}&quot;"/>
 								</option>
-								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1354825252" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
-								<inputType id="com.crt.advproject.assembler.input.1655531402" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.43452053" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+								<inputType id="com.crt.advproject.assembler.input.1890406778" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
 							</tool>
-							<tool id="com.crt.advproject.link.cpp.exe.debug.272389732" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.debug"/>
-							<tool id="com.crt.advproject.link.exe.debug.1302659769" name="MCU Linker" superClass="com.crt.advproject.link.exe.debug">
-								<option id="com.crt.advproject.link.arch.579326334" name="Architecture" superClass="com.crt.advproject.link.arch" value="com.crt.advproject.link.target.cm3" valueType="enumerated"/>
-								<option id="com.crt.advproject.link.thumb.365232535" name="Thumb mode" superClass="com.crt.advproject.link.thumb" value="true" valueType="boolean"/>
-								<option id="com.crt.advproject.link.script.767451052" name="Linker script" superClass="com.crt.advproject.link.script" value="&quot;freertos_blinky_Debug.ld&quot;" valueType="string"/>
-								<option id="com.crt.advproject.link.manage.170142010" name="Manage linker script" superClass="com.crt.advproject.link.manage" value="true" valueType="boolean"/>
-								<option id="gnu.c.link.option.nostdlibs.1456919600" name="No startup or default libs (-nostdlib)" superClass="gnu.c.link.option.nostdlibs" value="true" valueType="boolean"/>
-								<option id="gnu.c.link.option.other.10532382" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">
+							<tool id="com.crt.advproject.link.cpp.exe.debug.1741436795" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.debug"/>
+							<tool id="com.crt.advproject.link.exe.debug.1359913811" name="MCU Linker" superClass="com.crt.advproject.link.exe.debug">
+								<option id="gnu.c.link.option.libs.153239795" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="lpc_chip_175x_6x"/>
+								</option>
+								<option id="gnu.c.link.option.paths.289028665" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/Debug}&quot;"/>
+								</option>
+								<option id="com.crt.advproject.link.gcc.multicore.slave.1150997768" name="Multicore configuration" superClass="com.crt.advproject.link.gcc.multicore.slave"/>
+								<option id="com.crt.advproject.link.gcc.multicore.master.userobjs.843712004" name="Slave Objects (not visible)" superClass="com.crt.advproject.link.gcc.multicore.master.userobjs" valueType="userObjs"/>
+								<option id="com.crt.advproject.link.arch.363875586" name="Architecture" superClass="com.crt.advproject.link.arch" value="com.crt.advproject.link.target.cm3" valueType="enumerated"/>
+								<option id="com.crt.advproject.link.thumb.1035018814" name="Thumb mode" superClass="com.crt.advproject.link.thumb" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.link.manage.1805528737" name="Manage linker script" superClass="com.crt.advproject.link.manage" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.link.gcc.hdrlib.1127115059" name="Library" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.semihost" valueType="enumerated"/>
+								<option id="gnu.c.link.option.nostdlibs.596575316" name="No startup or default libs (-nostdlib)" superClass="gnu.c.link.option.nostdlibs" value="true" valueType="boolean"/>
+								<option id="gnu.c.link.option.other.975634010" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">
 									<listOptionValue builtIn="false" value="-Map=&quot;${BuildArtifactFileBaseName}.map&quot;"/>
 									<listOptionValue builtIn="false" value="--gc-sections"/>
 								</option>
-								<option id="com.crt.advproject.link.gcc.hdrlib.1211424881" name="Library" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.nohost" valueType="enumerated"/>
-								<option id="gnu.c.link.option.libs.1082262160" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lpc_chip_175x_6x"/>
-								</option>
-								<option id="gnu.c.link.option.paths.336215311" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library/Debug}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x/Debug}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/Debug}&quot;"/>
-								</option>
-								<option id="com.crt.advproject.link.gcc.multicore.master.userobjs.174728756" name="Slave Objects (not visible)" superClass="com.crt.advproject.link.gcc.multicore.master.userobjs" valueType="userObjs"/>
-								<option id="com.crt.advproject.link.gcc.multicore.slave.431490279" name="Multicore configuration" superClass="com.crt.advproject.link.gcc.multicore.slave"/>
-								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.522801571" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
+								<option id="com.crt.advproject.link.crpenable.1575614618" name="Enable Code Read Protect" superClass="com.crt.advproject.link.crpenable" value="false" valueType="boolean"/>
+								<option id="com.crt.advproject.link.script.1449318103" name="Linker script" superClass="com.crt.advproject.link.script" value="temperature_sender_Debug.ld" valueType="string"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1420961419" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.crt.advproject.config.exe.debug.897255787.426493458" name="/" resourcePath="src">
+						<toolChain id="com.crt.advproject.toolchain.exe.debug.36906038" name="NXP MCU Tools" superClass="com.crt.advproject.toolchain.exe.debug">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.debug" name="ARM-based MCU (Debug)" superClass="com.crt.advproject.platform.exe.debug"/>
+							<tool id="com.crt.advproject.cpp.exe.debug.810790952" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug"/>
+							<tool id="com.crt.advproject.gcc.exe.debug.594564778" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug">
+								<option id="gnu.c.compiler.option.include.paths.1925476672" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/example/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/freertos/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769}&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.709424949" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="DEBUG"/>
+									<listOptionValue builtIn="false" value="__CODE_RED"/>
+									<listOptionValue builtIn="false" value="__USE_LPCOPEN"/>
+									<listOptionValue builtIn="false" value="CORE_M3"/>
+									<listOptionValue builtIn="false" value="__REDLIB__"/>
+								</option>
+								<option id="gnu.c.compiler.option.include.files.1422352125" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/inc/board.h}&quot;"/>
+								</option>
+								<option id="com.crt.advproject.gcc.arch.1488940176" name="Architecture" superClass="com.crt.advproject.gcc.arch" value="com.crt.advproject.gcc.target.cm3" valueType="enumerated"/>
+								<option id="com.crt.advproject.gcc.thumb.518784959" name="Thumb mode" superClass="com.crt.advproject.gcc.thumb" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.gcc.hdrlib.151882957" name="Library headers" superClass="com.crt.advproject.gcc.hdrlib" value="com.crt.advproject.gcc.hdrlib.codered" valueType="enumerated"/>
+								<option id="com.crt.advproject.gcc.specs.748850276" name="Specs" superClass="com.crt.advproject.gcc.specs" value="com.crt.advproject.gcc.specs.codered" valueType="enumerated"/>
+								<inputType id="com.crt.advproject.compiler.input.1950321570" superClass="com.crt.advproject.compiler.input"/>
+							</tool>
+							<tool id="com.crt.advproject.gas.exe.debug.2060511666" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.debug">
+								<option id="com.crt.advproject.gas.arch.1951632874" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm3" valueType="enumerated"/>
+								<option id="com.crt.advproject.gas.thumb.638940274" name="Thumb mode" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.gas.hdrlib.1594217944" name="Library headers" superClass="com.crt.advproject.gas.hdrlib" value="com.crt.advproject.gas.hdrlib.codered" valueType="enumerated"/>
+								<option id="com.crt.advproject.gas.specs.1975124096" name="Specs" superClass="com.crt.advproject.gas.specs" value="com.crt.advproject.gas.specs.codered" valueType="enumerated"/>
+								<option id="gnu.both.asm.option.include.paths.1660289686" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx}&quot;"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.181526791" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+								<inputType id="com.crt.advproject.assembler.input.1976848822" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
+							</tool>
+							<tool id="com.crt.advproject.link.cpp.exe.debug.701756362" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.debug"/>
+							<tool id="com.crt.advproject.link.exe.debug.2033199643" name="MCU Linker" superClass="com.crt.advproject.link.exe.debug">
+								<option id="com.crt.advproject.link.arch.2109832393" name="Architecture" superClass="com.crt.advproject.link.arch" value="com.crt.advproject.link.target.cm3" valueType="enumerated"/>
+								<option id="com.crt.advproject.link.thumb.1744460853" name="Thumb mode" superClass="com.crt.advproject.link.thumb" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.link.manage.1427625758" name="Manage linker script" superClass="com.crt.advproject.link.manage" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.link.gcc.hdrlib.667785325" name="Library" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.semihost" valueType="enumerated"/>
+								<option id="gnu.c.link.option.nostdlibs.1035290196" name="No startup or default libs (-nostdlib)" superClass="gnu.c.link.option.nostdlibs" value="true" valueType="boolean"/>
+								<option id="gnu.c.link.option.other.165193654" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">
+									<listOptionValue builtIn="false" value="-Map=&quot;${BuildArtifactFileBaseName}.map&quot;"/>
+									<listOptionValue builtIn="false" value="--gc-sections"/>
+								</option>
+								<option id="com.crt.advproject.link.crpenable.703164023" name="Enable Code Read Protect" superClass="com.crt.advproject.link.crpenable" value="false" valueType="boolean"/>
+								<option id="com.crt.advproject.link.script.1909495957" name="Linker script" superClass="com.crt.advproject.link.script" value="temperature_sender.ld" valueType="string"/>
+								<option id="gnu.c.link.option.libs.847125114" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lpc17xx-FreeRTOS-driver-library"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lpc_chip_175x_6x"/>
+								</option>
 							</tool>
 						</toolChain>
 					</folderInfo>
@@ -120,7 +189,21 @@
 					</externalSetting>
 				</externalSettings>
 			</storageModule>
-			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
+			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs">
+				<option id="cmsis.device.name" value="LPC1768"/>
+				<option id="cmsis.subfamily.name" value="LPC176x"/>
+				<option id="cmsis.family.name" value="LPC1700 Series"/>
+				<option id="cmsis.device.vendor.name" value="NXP"/>
+				<option id="cmsis.device.vendor.id" value="11"/>
+				<option id="cmsis.device.pack.vendor" value="Keil"/>
+				<option id="cmsis.device.pack.name" value="LPC1700_DFP"/>
+				<option id="cmsis.device.pack.version" value="2.1.0"/>
+				<option id="cmsis.core.name" value="Cortex-M3"/>
+				<option id="cmsis.compiler.define" value="LPC175x_6x"/>
+				<memory section="IRAM1" size="0x8000" start="0x10000000" startup="0"/>
+				<memory section="IRAM2" size="0x8000" start="0x2007C000" startup="0"/>
+				<memory section="IROM1" size="0x80000" start="0x00000000" startup="1"/>
+			</storageModule>
 		</cconfiguration>
 		<cconfiguration id="com.crt.advproject.config.exe.release.514344055">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.crt.advproject.config.exe.release.514344055" moduleId="org.eclipse.cdt.core.settings" name="Release">
@@ -210,6 +293,515 @@
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
+		<cconfiguration id="com.crt.advproject.config.exe.debug.897255787.6152727">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.crt.advproject.config.exe.debug.897255787.6152727" moduleId="org.eclipse.cdt.core.settings" name="Debug-nxp">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="axf" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="com.crt.advproject.config.exe.debug.897255787.6152727" name="Debug-nxp" parent="com.crt.advproject.config.exe.debug" postannouncebuildStep="Performing post-build steps" postbuildStep="arm-none-eabi-size &quot;${BuildArtifactFileName}&quot;; # arm-none-eabi-objcopy -v -O binary &quot;${BuildArtifactFileName}&quot; &quot;${BuildArtifactFileBaseName}.bin&quot; ; # checksum -p ${TargetChip} -d &quot;${BuildArtifactFileBaseName}.bin&quot;;  ">
+					<folderInfo id="com.crt.advproject.config.exe.debug.897255787.6152727." name="/" resourcePath="">
+						<toolChain id="com.crt.advproject.toolchain.exe.debug.1470044554" name="NXP MCU Tools" superClass="com.crt.advproject.toolchain.exe.debug">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.debug.1833933478" name="ARM-based MCU (Debug)" superClass="com.crt.advproject.platform.exe.debug"/>
+							<builder buildPath="${workspace_loc:/temperature_sender}/Debug" id="com.crt.advproject.builder.exe.debug.1438669244" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="com.crt.advproject.builder.exe.debug"/>
+							<tool id="com.crt.advproject.cpp.exe.debug.1813938612" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug"/>
+							<tool id="com.crt.advproject.gcc.exe.debug.1924733015" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug">
+								<option id="gnu.c.compiler.option.include.paths.1872899821" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/example}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/example/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/freertos/inc}&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1664073964" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="DEBUG"/>
+									<listOptionValue builtIn="false" value="__CODE_RED"/>
+									<listOptionValue builtIn="false" value="__USE_LPCOPEN"/>
+									<listOptionValue builtIn="false" value="CORE_M3"/>
+									<listOptionValue builtIn="false" value="__REDLIB__"/>
+								</option>
+								<option id="com.crt.advproject.gcc.arch.1931785412" name="Architecture" superClass="com.crt.advproject.gcc.arch" value="com.crt.advproject.gcc.target.cm3" valueType="enumerated"/>
+								<option id="com.crt.advproject.gcc.thumb.1660820105" name="Thumb mode" superClass="com.crt.advproject.gcc.thumb" value="true" valueType="boolean"/>
+								<option id="gnu.c.compiler.option.misc.verbose.1855504274" name="Verbose (-v)" superClass="gnu.c.compiler.option.misc.verbose" value="false" valueType="boolean"/>
+								<option id="gnu.c.compiler.option.misc.ansi.1951638882" name="Support ANSI programs (-ansi)" superClass="gnu.c.compiler.option.misc.ansi" value="false" valueType="boolean"/>
+								<option id="com.crt.advproject.c.misc.dialect.1557515668" name="Language standard" superClass="com.crt.advproject.c.misc.dialect" value="com.crt.advproject.misc.dialect.default" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.misc.other.1633576022" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
+								<option id="gnu.c.compiler.option.preprocessor.nostdinc.1758243374" name="Do not search system directories (-nostdinc)" superClass="gnu.c.compiler.option.preprocessor.nostdinc" value="true" valueType="boolean"/>
+								<option id="gnu.c.compiler.option.include.files.669210637" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/inc/board.h}&quot;"/>
+								</option>
+								<option id="com.crt.advproject.gcc.hdrlib.708416550" name="Library headers" superClass="com.crt.advproject.gcc.hdrlib" value="com.crt.advproject.gcc.hdrlib.codered" valueType="enumerated"/>
+								<option id="com.crt.advproject.gcc.specs.1069351716" name="Specs" superClass="com.crt.advproject.gcc.specs" value="com.crt.advproject.gcc.specs.codered" valueType="enumerated"/>
+								<inputType id="com.crt.advproject.compiler.input.309917836" superClass="com.crt.advproject.compiler.input"/>
+							</tool>
+							<tool id="com.crt.advproject.gas.exe.debug.1490103912" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.debug">
+								<option id="gnu.both.asm.option.include.paths.1110409379" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx}&quot;"/>
+								</option>
+								<option id="com.crt.advproject.gas.arch.1383838007" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm3" valueType="enumerated"/>
+								<option id="com.crt.advproject.gas.thumb.859244791" name="Thumb mode" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
+								<option id="gnu.both.asm.option.flags.crt.1376833258" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -DDEBUG -D__CODE_RED -D__REDLIB__" valueType="string"/>
+								<option id="com.crt.advproject.gas.hdrlib.930643664" name="Library headers" superClass="com.crt.advproject.gas.hdrlib" value="com.crt.advproject.gas.hdrlib.codered" valueType="enumerated"/>
+								<option id="com.crt.advproject.gas.specs.1037832366" name="Specs" superClass="com.crt.advproject.gas.specs" value="com.crt.advproject.gas.specs.codered" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1788061979" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+								<inputType id="com.crt.advproject.assembler.input.454794046" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
+							</tool>
+							<tool id="com.crt.advproject.link.cpp.exe.debug.587038121" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.debug"/>
+							<tool id="com.crt.advproject.link.exe.debug.211393833" name="MCU Linker" superClass="com.crt.advproject.link.exe.debug">
+								<option id="gnu.c.link.option.libs.1005053795" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lpc17xx-FreeRTOS-driver-library"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lpc_chip_175x_6x"/>
+								</option>
+								<option id="gnu.c.link.option.paths.1389659589" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/Debug}&quot;"/>
+								</option>
+								<option id="com.crt.advproject.link.gcc.multicore.master.userobjs.106955339" name="Slave Objects (not visible)" superClass="com.crt.advproject.link.gcc.multicore.master.userobjs" valueType="userObjs"/>
+								<option id="com.crt.advproject.link.arch.1991017013" name="Architecture" superClass="com.crt.advproject.link.arch" value="com.crt.advproject.link.target.cm3" valueType="enumerated"/>
+								<option id="com.crt.advproject.link.thumb.406649738" name="Thumb mode" superClass="com.crt.advproject.link.thumb" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.link.gcc.multicore.slave.1360903722" name="Multicore configuration" superClass="com.crt.advproject.link.gcc.multicore.slave"/>
+								<option id="gnu.c.link.option.nostdlibs.1921761734" name="No startup or default libs (-nostdlib)" superClass="gnu.c.link.option.nostdlibs" value="true" valueType="boolean"/>
+								<option id="gnu.c.link.option.nodeflibs.2122988961" name="Do not use default libraries (-nodefaultlibs)" superClass="gnu.c.link.option.nodeflibs" value="false" valueType="boolean"/>
+								<option id="gnu.c.link.option.noshared.686483512" name="No shared libraries (-static)" superClass="gnu.c.link.option.noshared" value="false" valueType="boolean"/>
+								<option id="com.crt.advproject.link.manage.1071432431" name="Manage linker script" superClass="com.crt.advproject.link.manage" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.link.gcc.hdrlib.913731535" name="Library" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.nohost" valueType="enumerated"/>
+								<option id="com.crt.advproject.link.toram.516647415" name="Link application to RAM" superClass="com.crt.advproject.link.toram" value="false" valueType="boolean"/>
+								<option id="gnu.c.link.option.other.299705806" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">
+									<listOptionValue builtIn="false" value="-Map=&quot;${BuildArtifactFileBaseName}.map&quot;"/>
+									<listOptionValue builtIn="false" value="--gc-sections"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.278544198" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.crt.advproject.config.exe.debug.897255787.6152727.src" name="/" resourcePath="src">
+						<toolChain id="com.crt.advproject.toolchain.exe.debug.1213059012" name="NXP MCU Tools" superClass="com.crt.advproject.toolchain.exe.debug" unusedChildren="">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.debug.2016656150" name="ARM-based MCU (Debug)" superClass="com.crt.advproject.platform.exe.debug"/>
+							<tool id="com.crt.advproject.cpp.exe.debug.1665130522" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug.1813938612"/>
+							<tool id="com.crt.advproject.gcc.exe.debug.1913819416" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.1924733015">
+								<option id="gnu.c.compiler.option.include.paths.2005717971" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/example/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/freertos/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769}&quot;"/>
+								</option>
+								<inputType id="com.crt.advproject.compiler.input.1980402380" superClass="com.crt.advproject.compiler.input"/>
+							</tool>
+							<tool id="com.crt.advproject.gas.exe.debug.150231127" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.debug.1490103912">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1681392881" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+								<inputType id="com.crt.advproject.assembler.input.734042012" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
+							</tool>
+							<tool id="com.crt.advproject.link.cpp.exe.debug.1884716179" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.debug.587038121"/>
+							<tool id="com.crt.advproject.link.exe.debug.1165274355" name="MCU Linker" superClass="com.crt.advproject.link.exe.debug.211393833"/>
+						</toolChain>
+					</folderInfo>
+					<fileInfo id="com.crt.advproject.config.exe.debug.897255787.6152727.example/lcd.h" name="lcd.h" rcbsApplicability="disable" resourcePath="example/lcd.h" toolsToInvoke=""/>
+					<sourceEntries>
+						<entry excluding="lcd.h|lcd.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="example"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="freertos"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
+				<externalSettings containerId="periph_timer;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
+				<externalSettings containerId="periph_uart_rb;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
+				<externalSettings containerId="CMSISv2p00_LPC17xx;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/CMSISv2p00_LPC17xx"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/CMSISv2p00_LPC17xx/Debug"/>
+					</externalSetting>
+				</externalSettings>
+				<externalSettings containerId="lpc_chip_175x_6x;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/lpc_chip_175x_6x"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/lpc_chip_175x_6x/Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="lpc_chip_175x_6x" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<externalSettings containerId="freertos_blinky;com.crt.advproject.config.exe.release.514344055" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
+				<externalSettings containerId="lpc17xx.cmsis.driver.library;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/lpc17xx-FreeRTOS-driver-library"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/lpc17xx-FreeRTOS-driver-library/Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="lpc17xx-FreeRTOS-driver-library" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+			</storageModule>
+			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs">
+				<option id="cmsis.device.name" value="LPC1768"/>
+				<option id="cmsis.subfamily.name" value="LPC176x"/>
+				<option id="cmsis.family.name" value="LPC1700 Series"/>
+				<option id="cmsis.device.vendor.name" value="NXP"/>
+				<option id="cmsis.device.vendor.id" value="11"/>
+				<option id="cmsis.device.pack.vendor" value="Keil"/>
+				<option id="cmsis.device.pack.name" value="LPC1700_DFP"/>
+				<option id="cmsis.device.pack.version" value="2.1.0"/>
+				<option id="cmsis.core.name" value="Cortex-M3"/>
+				<option id="cmsis.compiler.define" value="LPC175x_6x"/>
+				<memory section="IRAM1" size="0x8000" start="0x10000000" startup="0"/>
+				<memory section="IRAM2" size="0x8000" start="0x2007C000" startup="0"/>
+				<memory section="IROM1" size="0x80000" start="0x00000000" startup="1"/>
+			</storageModule>
+		</cconfiguration>
+		<cconfiguration id="com.crt.advproject.config.exe.debug.897255787.1976601377">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.crt.advproject.config.exe.debug.897255787.1976601377" moduleId="org.eclipse.cdt.core.settings" name="Debug-gcc">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="axf" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="com.crt.advproject.config.exe.debug.897255787.1976601377" name="Debug-gcc" parent="com.crt.advproject.config.exe.debug" postannouncebuildStep="Performing post-build steps" postbuildStep="arm-none-eabi-size &quot;${BuildArtifactFileName}&quot;; # arm-none-eabi-objcopy -v -O binary &quot;${BuildArtifactFileName}&quot; &quot;${BuildArtifactFileBaseName}.bin&quot; ; # checksum -p ${TargetChip} -d &quot;${BuildArtifactFileBaseName}.bin&quot;;  ">
+					<folderInfo id="com.crt.advproject.config.exe.debug.897255787.1976601377." name="/" resourcePath="">
+						<toolChain id="ilg.gnuarmeclipse.managedbuild.cross.toolchain.base.1881883733" name="Cross ARM GCC" superClass="ilg.gnuarmeclipse.managedbuild.cross.toolchain.base">
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.architecture.140994275" name="Architecture" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.architecture"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.prefix.1473536094" name="Prefix" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.prefix"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.suffix.1277493871" name="Suffix" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.suffix"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.c.1526464213" name="C compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.c" value="" valueType="string"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.cpp.1743733564" name="C++ compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.cpp" value="" valueType="string"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.ar.981024378" name="Archiver" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.ar"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.objcopy.448439935" name="Hex/Bin converter" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.objcopy"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.objdump.57266494" name="Listing generator" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.objdump"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.size.669234632" name="Size command" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.size"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.make.142991074" name="Build command" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.make"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.rm.1254274671" name="Remove command" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.rm"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.toolchain.useglobalpath.2114838641" name="Use global path" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.toolchain.useglobalpath"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.toolchain.path.90426786" name="Path" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.toolchain.path"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.createflash.389867857" name="Create flash image" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.createflash"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.createlisting.665240814" name="Create extended listing" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.createlisting"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.printsize.1506025987" name="Print size" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.printsize"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.family.1902994619" name="ARM family" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.family"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.architecture.966316194" name="Architecture" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.architecture"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.instructionset.1905071828" name="Instruction set" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.instructionset"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.thumbinterwork.79490027" name="Thumb interwork (-mthumb-interwork)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.thumbinterwork"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.endianness.1925348238" name="Endianness" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.endianness"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.abi.1498429186" name="Float ABI" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.abi"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.unit.1836421219" name="FPU Type" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.unit"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.unalignedaccess.1632406956" name="Unaligned access" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.unalignedaccess"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.family.1720391982" name="AArch64 family" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.family"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.crc.935333302" name="Feature crc" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.crc"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.crypto.56206310" name="Feature crypto" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.crypto"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.fp.2052545817" name="Feature fp" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.fp"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.simd.975538757" name="Feature simd" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.simd"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.cmodel.1548059266" name="Code model" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.cmodel"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.strictalign.1123242033" name="Strict align (-mstrict-align)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.strictalign"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.target.other.1356540780" name="Other target flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.target.other"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.level.2056039636" name="Optimization Level" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.level"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.messagelength.741518755" name="Message length (-fmessage-length=0)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.messagelength"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.signedchar.417050535" name="'char' is signed (-fsigned-char)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.signedchar"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.functionsections.928781681" name="Function sections (-ffunction-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.functionsections"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.datasections.913135936" name="Data sections (-fdata-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.datasections"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.nocommon.448569325" name="No common unitialized (-fno-common)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.nocommon"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.noinlinefunctions.1225242603" name="Do not inline functions (-fno-inline-functions)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.noinlinefunctions"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.freestanding.1404440234" name="Assume freestanding environment (-ffreestanding)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.freestanding"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.nobuiltin.1045711247" name="Disable builtin (-fno-builtin)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.nobuiltin"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.spconstant.1577588732" name="Single precision constants (-fsingle-precision-constant)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.spconstant"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.PIC.1967006387" name="Position independent code (-fPIC)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.PIC"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.lto.906262545" name="Link-time optimizer (-flto)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.lto"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.nomoveloopinvariants.855357834" name="Disable loop invariant move (-fno-move-loop-invariants)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.nomoveloopinvariants"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.other.614644977" name="Other optimization flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.other"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.toolchain.name.1207967193" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.toolchain.name" value="GNU Tools for ARM Embedded Processors" valueType="string"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.syntaxonly.1840633134" name="Check syntax only (-fsyntax-only)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.syntaxonly"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.pedantic.1384259390" name="Pedantic (-pedantic)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.pedantic"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.pedanticerrors.962299293" name="Pedantic warnings as errors (-pedantic-errors)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.pedanticerrors"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.nowarn.858174667" name="Inhibit all warnings (-w)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.nowarn"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.unused.1295823588" name="Warn on various unused elements (-Wunused)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.unused"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.uninitialized.826036214" name="Warn on uninitialized variables (-Wuninitialised)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.uninitialized"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.allwarn.1229257784" name="Enable all common warnings (-Wall)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.allwarn"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.extrawarn.821477419" name="Enable extra warnings (-Wextra)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.extrawarn"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.missingdeclaration.39790423" name="Warn on undeclared global function (-Wmissing-declaration)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.missingdeclaration"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.conversion.426496420" name="Warn on implicit conversions (-Wconversion)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.conversion"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.pointerarith.2113087593" name="Warn if pointer arithmetic (-Wpointer-arith)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.pointerarith"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.padded.616373067" name="Warn if padding is included (-Wpadded)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.padded"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.shadow.1400880025" name="Warn if shadowed variable (-Wshadow)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.shadow"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.logicalop.1796816217" name="Warn if suspicious logical ops (-Wlogical-op)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.logicalop"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.agreggatereturn.1079880100" name="Warn if struct is returned (-Wagreggate-return)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.agreggatereturn"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.floatequal.1967078553" name="Warn if floats are compared as equal (-Wfloat-equal)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.floatequal"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.toerrors.1323943996" name="Generate errors instead of warnings (-Werror)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.toerrors"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.other.1964428964" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.other"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.level.1950752770" name="Debug level" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.level"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.format.1437191395" name="Debug format" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.format"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.prof.1464160725" name="Generate prof information (-p)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.prof"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.gprof.105453193" name="Generate gprof information (-pg)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.gprof"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.other.1921734480" name="Other debugging flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.other"/>
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform.2137698611" isAbstract="false" osList="all" superClass="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform"/>
+							<builder buildPath="${workspace_loc:/temperature_sender}/Debug" id="ilg.gnuarmeclipse.managedbuild.cross.builder.1710016777" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="ilg.gnuarmeclipse.managedbuild.cross.builder"/>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.1870195322" name="Cross ARM GNU Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.1119291970" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.132372701" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx}&quot;"/>
+								</option>
+								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.1716964886" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
+							</tool>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.47250596" name="Cross ARM C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.781173545" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/example}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/example/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/freertos/inc}&quot;"/>
+								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.1222855454" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="DEBUG"/>
+									<listOptionValue builtIn="false" value="__CODE_RED"/>
+									<listOptionValue builtIn="false" value="__USE_LPCOPEN"/>
+									<listOptionValue builtIn="false" value="CORE_M3"/>
+									<listOptionValue builtIn="false" value="__REDLIB__"/>
+								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.files.559068893" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.files" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/inc/board.h}&quot;"/>
+								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.verbose.165027148" name="Verbose (-v)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.verbose" value="true" valueType="boolean"/>
+								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.241741492" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
+							</tool>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1212845129" name="Cross ARM C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler"/>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker.2108919123" name="Cross ARM C Linker" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.libs.1533443949" name="Libraries (-l)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.libs" valueType="libs">
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lpc17xx-FreeRTOS-driver-library"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lpc_chip_175x_6x"/>
+								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.paths.1304744086" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/Debug}&quot;"/>
+								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.gcsections.509620102" name="Remove unused sections (-Xlinker --gc-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.gcsections" value="true" valueType="boolean"/>
+								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker.input.839435488" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker.672693035" name="Cross ARM C++ Linker" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.gcsections.545796843" name="Remove unused sections (-Xlinker --gc-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.gcsections" value="true" valueType="boolean"/>
+							</tool>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.archiver.1882602475" name="Cross ARM GNU Archiver" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.archiver"/>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.createflash.641223565" name="Cross ARM GNU Create Flash Image" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.createflash"/>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.createlisting.1839609279" name="Cross ARM GNU Create Listing" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.createlisting">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.source.1987183638" name="Display source (--source|-S)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.source" value="true" valueType="boolean"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.allheaders.1579416479" name="Display all headers (--all-headers|-x)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.allheaders" value="true" valueType="boolean"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.demangle.1591245646" name="Demangle names (--demangle|-C)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.demangle" value="true" valueType="boolean"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.linenumbers.1665300267" name="Display line numbers (--line-numbers|-l)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.linenumbers" value="true" valueType="boolean"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.wide.2008979490" name="Wide lines (--wide|-w)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.wide" value="true" valueType="boolean"/>
+							</tool>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.printsize.2142923272" name="Cross ARM GNU Print Size" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.printsize">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.printsize.format.1782491708" name="Size format" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.printsize.format"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="com.crt.advproject.config.exe.debug.897255787.1976601377.src" name="/" resourcePath="src">
+						<toolChain id="ilg.gnuarmeclipse.managedbuild.cross.toolchain.base.1383751825" name="Cross ARM GCC" superClass="ilg.gnuarmeclipse.managedbuild.cross.toolchain.base">
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.architecture.1353498230" name="Architecture" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.architecture"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.prefix.525376598" name="Prefix" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.prefix"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.suffix.346399430" name="Suffix" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.suffix"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.c.1052233363" name="C compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.c"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.cpp.1726472505" name="C++ compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.cpp"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.ar.400199839" name="Archiver" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.ar"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.objcopy.1722694686" name="Hex/Bin converter" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.objcopy"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.objdump.1919765263" name="Listing generator" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.objdump"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.size.162588959" name="Size command" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.size"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.make.560388488" name="Build command" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.make"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.command.rm.1531135132" name="Remove command" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.command.rm"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.toolchain.useglobalpath.2115712242" name="Use global path" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.toolchain.useglobalpath"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.toolchain.path.239053881" name="Path" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.toolchain.path"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.createflash.1326795315" name="Create flash image" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.createflash"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.createlisting.1312237187" name="Create extended listing" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.createlisting"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.printsize.2027561449" name="Print size" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.printsize"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.family.620040890" name="ARM family" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.family"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.architecture.1384586559" name="Architecture" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.architecture"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.instructionset.1060475368" name="Instruction set" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.instructionset"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.thumbinterwork.453869188" name="Thumb interwork (-mthumb-interwork)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.thumbinterwork"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.endianness.452266674" name="Endianness" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.endianness"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.abi.800215881" name="Float ABI" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.abi"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.unit.855333033" name="FPU Type" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.unit"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.unalignedaccess.188284853" name="Unaligned access" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.unalignedaccess"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.family.1065131668" name="AArch64 family" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.family"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.crc.938171769" name="Feature crc" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.crc"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.crypto.1625644417" name="Feature crypto" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.crypto"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.fp.120397806" name="Feature fp" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.fp"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.simd.747538225" name="Feature simd" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.feature.simd"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.cmodel.1036735000" name="Code model" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.cmodel"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.strictalign.1584104394" name="Strict align (-mstrict-align)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.aarch64.target.strictalign"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.target.other.1355847716" name="Other target flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.target.other"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.level.540875041" name="Optimization Level" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.level"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.messagelength.1689851900" name="Message length (-fmessage-length=0)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.messagelength"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.signedchar.483454899" name="'char' is signed (-fsigned-char)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.signedchar"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.functionsections.1860352128" name="Function sections (-ffunction-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.functionsections"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.datasections.193443336" name="Data sections (-fdata-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.datasections"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.nocommon.379806440" name="No common unitialized (-fno-common)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.nocommon"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.noinlinefunctions.1317640759" name="Do not inline functions (-fno-inline-functions)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.noinlinefunctions"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.freestanding.675550270" name="Assume freestanding environment (-ffreestanding)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.freestanding"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.nobuiltin.780416825" name="Disable builtin (-fno-builtin)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.nobuiltin"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.spconstant.515140179" name="Single precision constants (-fsingle-precision-constant)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.spconstant"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.PIC.316790058" name="Position independent code (-fPIC)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.PIC"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.lto.2127909076" name="Link-time optimizer (-flto)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.lto"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.nomoveloopinvariants.1507633913" name="Disable loop invariant move (-fno-move-loop-invariants)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.nomoveloopinvariants"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.other.1098268057" name="Other optimization flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.other"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.toolchain.name.2116678260" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.toolchain.name"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.syntaxonly.1921105552" name="Check syntax only (-fsyntax-only)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.syntaxonly"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.pedantic.1760190942" name="Pedantic (-pedantic)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.pedantic"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.pedanticerrors.750567931" name="Pedantic warnings as errors (-pedantic-errors)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.pedanticerrors"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.nowarn.994953364" name="Inhibit all warnings (-w)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.nowarn"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.unused.1938930659" name="Warn on various unused elements (-Wunused)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.unused"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.uninitialized.1652066441" name="Warn on uninitialized variables (-Wuninitialised)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.uninitialized"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.allwarn.633155835" name="Enable all common warnings (-Wall)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.allwarn"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.extrawarn.1832101126" name="Enable extra warnings (-Wextra)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.extrawarn"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.missingdeclaration.1435291886" name="Warn on undeclared global function (-Wmissing-declaration)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.missingdeclaration"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.conversion.967755392" name="Warn on implicit conversions (-Wconversion)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.conversion"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.pointerarith.952672969" name="Warn if pointer arithmetic (-Wpointer-arith)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.pointerarith"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.padded.41381999" name="Warn if padding is included (-Wpadded)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.padded"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.shadow.817298494" name="Warn if shadowed variable (-Wshadow)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.shadow"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.logicalop.890461963" name="Warn if suspicious logical ops (-Wlogical-op)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.logicalop"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.agreggatereturn.1226603239" name="Warn if struct is returned (-Wagreggate-return)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.agreggatereturn"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.floatequal.227115428" name="Warn if floats are compared as equal (-Wfloat-equal)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.floatequal"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.toerrors.1300231699" name="Generate errors instead of warnings (-Werror)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.toerrors"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.other.263057821" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.other"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.level.10890085" name="Debug level" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.level"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.format.880665032" name="Debug format" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.format"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.prof.778830669" name="Generate prof information (-p)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.prof"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.gprof.1997541438" name="Generate gprof information (-pg)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.gprof"/>
+							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.other.1166382176" name="Other debugging flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.other"/>
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform.144819938" isAbstract="false" osList="all" superClass="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform"/>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.1797001250" name="Cross ARM GNU Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.950670339" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.515718877" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx}&quot;"/>
+								</option>
+								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.34660985" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
+							</tool>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.2003642215" name="Cross ARM C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.1912559197" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc17xx-FreeRTOS-driver-library}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2p00_LPC17xx}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_chip_175x_6x/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/example/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/freertos/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769}&quot;"/>
+								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.1209306981" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="DEBUG"/>
+									<listOptionValue builtIn="false" value="__CODE_RED"/>
+									<listOptionValue builtIn="false" value="__USE_LPCOPEN"/>
+									<listOptionValue builtIn="false" value="CORE_M3"/>
+									<listOptionValue builtIn="false" value="__REDLIB__"/>
+								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.files.1617978995" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.files" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc_board_nxp_lpcxpresso_1769/inc/board.h}&quot;"/>
+								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.verbose.1671475394" name="Verbose (-v)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.verbose" value="true" valueType="boolean"/>
+								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1928989286" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
+							</tool>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.155077065" name="Cross ARM C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler"/>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker.2023044803" name="Cross ARM C Linker" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.gcsections.2111064179" name="Remove unused sections (-Xlinker --gc-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.gcsections" value="true" valueType="boolean"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.libs.1194493804" name="Libraries (-l)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.libs" valueType="libs">
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lpc17xx-FreeRTOS-driver-library"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lpc_chip_175x_6x"/>
+								</option>
+							</tool>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker.531545767" name="Cross ARM C++ Linker" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.gcsections.2133691404" name="Remove unused sections (-Xlinker --gc-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.gcsections" value="true" valueType="boolean"/>
+							</tool>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.archiver.757648520" name="Cross ARM GNU Archiver" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.archiver"/>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.createflash.1164402014" name="Cross ARM GNU Create Flash Image" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.createflash"/>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.createlisting.973253473" name="Cross ARM GNU Create Listing" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.createlisting">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.source.207472853" name="Display source (--source|-S)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.source" value="true" valueType="boolean"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.allheaders.606917405" name="Display all headers (--all-headers|-x)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.allheaders" value="true" valueType="boolean"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.demangle.1649067294" name="Demangle names (--demangle|-C)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.demangle" value="true" valueType="boolean"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.linenumbers.1945155457" name="Display line numbers (--line-numbers|-l)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.linenumbers" value="true" valueType="boolean"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.wide.169031042" name="Wide lines (--wide|-w)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.createlisting.wide" value="true" valueType="boolean"/>
+							</tool>
+							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.printsize.665344749" name="Cross ARM GNU Print Size" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.printsize">
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.printsize.format.81770468" name="Size format" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.printsize.format"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<fileInfo id="com.crt.advproject.config.exe.debug.897255787.1976601377.example/lcd.h" name="lcd.h" rcbsApplicability="disable" resourcePath="example/lcd.h" toolsToInvoke=""/>
+					<sourceEntries>
+						<entry excluding="lcd.h|lcd.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="example"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="freertos"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
+				<externalSettings containerId="periph_timer;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
+				<externalSettings containerId="periph_uart_rb;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
+				<externalSettings containerId="CMSISv2p00_LPC17xx;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/CMSISv2p00_LPC17xx"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/CMSISv2p00_LPC17xx/Debug"/>
+					</externalSetting>
+				</externalSettings>
+				<externalSettings containerId="lpc_chip_175x_6x;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/lpc_chip_175x_6x"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/lpc_chip_175x_6x/Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="lpc_chip_175x_6x" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<externalSettings containerId="freertos_blinky;com.crt.advproject.config.exe.release.514344055" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
+				<externalSettings containerId="lpc17xx.cmsis.driver.library;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/lpc17xx-FreeRTOS-driver-library"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/lpc17xx-FreeRTOS-driver-library/Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="lpc17xx-FreeRTOS-driver-library" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+			</storageModule>
+			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs">
+				<option id="cmsis.device.name" value="LPC1768"/>
+				<option id="cmsis.subfamily.name" value="LPC176x"/>
+				<option id="cmsis.family.name" value="LPC1700 Series"/>
+				<option id="cmsis.device.vendor.name" value="NXP"/>
+				<option id="cmsis.device.vendor.id" value="11"/>
+				<option id="cmsis.device.pack.vendor" value="Keil"/>
+				<option id="cmsis.device.pack.name" value="LPC1700_DFP"/>
+				<option id="cmsis.device.pack.version" value="2.1.0"/>
+				<option id="cmsis.core.name" value="Cortex-M3"/>
+				<option id="cmsis.compiler.define" value="LPC175x_6x"/>
+				<memory section="IRAM1" size="0x8000" start="0x10000000" startup="0"/>
+				<memory section="IRAM2" size="0x8000" start="0x2007C000" startup="0"/>
+				<memory section="IROM1" size="0x80000" start="0x00000000" startup="1"/>
+			</storageModule>
+		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="freertos_blinky.com.crt.advproject.projecttype.exe.1693076455" name="Executable" projectType="com.crt.advproject.projecttype.exe"/>
@@ -218,8 +810,8 @@
 	<storageModule moduleId="com.crt.config">
 		<projectStorage>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;TargetConfig&gt;
-&lt;Properties property_0="" property_2="LPC175x_6x_512.cfx" property_3="NXP" property_4="LPC1769" property_count="5" version="70200"/&gt;
-&lt;infoList vendor="NXP"&gt;&lt;info chip="LPC1769" flash_driver="LPC175x_6x_512.cfx" match_id="0x26113F37" name="LPC1769" package="lpc17_lqfp100.xml" stub="crt_emu_cm3_nxp"&gt;&lt;chip&gt;&lt;name&gt;LPC1769&lt;/name&gt;
+&lt;Properties property_0="" property_2="LPC175x_6x_512.cfx" property_3="NXP" property_4="LPC1768" property_count="5" version="70200"/&gt;
+&lt;infoList vendor="NXP"&gt;&lt;info chip="LPC1768" flash_driver="LPC175x_6x_512.cfx" match_id="0x00013f37,0x26013F37,0x26113F37" name="LPC1768" package="lpc17_lqfp100.xml" stub="crt_emu_cm3_nxp"&gt;&lt;chip&gt;&lt;name&gt;LPC1768&lt;/name&gt;
 &lt;family&gt;LPC17xx&lt;/family&gt;
 &lt;vendor&gt;NXP (formerly Philips)&lt;/vendor&gt;
 &lt;reset board="None" core="Real" sys="Real"/&gt;
@@ -227,59 +819,59 @@
 &lt;memory can_program="true" id="Flash" is_ro="true" type="Flash"/&gt;
 &lt;memory id="RAM" type="RAM"/&gt;
 &lt;memory id="Periph" is_volatile="true" type="Peripheral"/&gt;
-&lt;memoryInstance derived_from="Flash" id="MFlash512" location="0x00000000" size="0x80000"/&gt;
+&lt;memoryInstance derived_from="Flash" id="MFlash512" location="0x0" size="0x80000"/&gt;
 &lt;memoryInstance derived_from="RAM" id="RamLoc32" location="0x10000000" size="0x8000"/&gt;
 &lt;memoryInstance derived_from="RAM" id="RamAHB32" location="0x2007c000" size="0x8000"/&gt;
 &lt;prog_flash blocksz="0x1000" location="0" maxprgbuff="0x1000" progwithcode="TRUE" size="0x10000"/&gt;
 &lt;prog_flash blocksz="0x8000" location="0x10000" maxprgbuff="0x1000" progwithcode="TRUE" size="0x70000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_NVIC" determined="infoFile" id="NVIC" location="0xE000E000"/&gt;
-&lt;peripheralInstance derived_from="TIMER" determined="infoFile" enable="SYSCTL.PCONP.PCTIM0&amp;amp;0x1" id="TIMER0" location="0x40004000"/&gt;
-&lt;peripheralInstance derived_from="TIMER" determined="infoFile" enable="SYSCTL.PCONP.PCTIM1&amp;amp;0x1" id="TIMER1" location="0x40008000"/&gt;
-&lt;peripheralInstance derived_from="TIMER" determined="infoFile" enable="SYSCTL.PCONP.PCTIM2&amp;amp;0x1" id="TIMER2" location="0x40090000"/&gt;
-&lt;peripheralInstance derived_from="TIMER" determined="infoFile" enable="SYSCTL.PCONP.PCTIM3&amp;amp;0x1" id="TIMER3" location="0x40094000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_RIT" determined="infoFile" enable="SYSCTL.PCONP.PCRIT&amp;amp;0x1" id="RIT" location="0x400B0000"/&gt;
-&lt;peripheralInstance derived_from="FGPIO" determined="infoFile" enable="SYSCTL.PCONP.PCGPIO&amp;amp;0x1" id="GPIO0" location="0x2009C000"/&gt;
-&lt;peripheralInstance derived_from="FGPIO" determined="infoFile" enable="SYSCTL.PCONP.PCGPIO&amp;amp;0x1" id="GPIO1" location="0x2009C020"/&gt;
-&lt;peripheralInstance derived_from="FGPIO" determined="infoFile" enable="SYSCTL.PCONP.PCGPIO&amp;amp;0x1" id="GPIO2" location="0x2009C040"/&gt;
-&lt;peripheralInstance derived_from="FGPIO" determined="infoFile" enable="SYSCTL.PCONP.PCGPIO&amp;amp;0x1" id="GPIO3" location="0x2009C060"/&gt;
-&lt;peripheralInstance derived_from="FGPIO" determined="infoFile" enable="SYSCTL.PCONP.PCGPIO&amp;amp;0x1" id="GPIO4" location="0x2009C080"/&gt;
-&lt;peripheralInstance derived_from="LPC17_I2S" determined="infoFile" enable="SYSCTL.PCONP&amp;amp;0x08000000" id="I2S" location="0x400A8000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_SYSCTL" determined="infoFile" id="SYSCTL" location="0x400FC000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_DAC" determined="infoFile" enable="PCB.PINSEL1.P0_26&amp;amp;0x2=2" id="DAC" location="0x4008C000"/&gt;
-&lt;peripheralInstance derived_from="LPC17xx_UART" determined="infoFile" enable="SYSCTL.PCONP.PCUART0&amp;amp;0x1" id="UART0" location="0x4000C000"/&gt;
-&lt;peripheralInstance derived_from="LPC17xx_UART_MODEM" determined="infoFile" enable="SYSCTL.PCONP.PCUART1&amp;amp;0x1" id="UART1" location="0x40010000"/&gt;
-&lt;peripheralInstance derived_from="LPC17xx_UART" determined="infoFile" enable="SYSCTL.PCONP.PCUART2&amp;amp;0x1" id="UART2" location="0x40098000"/&gt;
-&lt;peripheralInstance derived_from="LPC17xx_UART" determined="infoFile" enable="SYSCTL.PCONP.PCUART3&amp;amp;0x1" id="UART3" location="0x4009C000"/&gt;
-&lt;peripheralInstance derived_from="SPI" determined="infoFile" enable="SYSCTL.PCONP.PCSPI&amp;amp;0x1" id="SPI" location="0x40020000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_SSP" determined="infoFile" enable="SYSCTL.PCONP.PCSSP0&amp;amp;0x1" id="SSP0" location="0x40088000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_SSP" determined="infoFile" enable="SYSCTL.PCONP.PCSSP1&amp;amp;0x1" id="SSP1" location="0x40030000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_ADC" determined="infoFile" enable="SYSCTL.PCONP.PCAD&amp;amp;0x1" id="ADC" location="0x40034000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_USBINTST" determined="infoFile" enable="USBCLKCTL.USBClkCtrl&amp;amp;0x12" id="USBINTSTAT" location="0x400fc1c0"/&gt;
-&lt;peripheralInstance derived_from="LPC17_USB_CLK_CTL" determined="infoFile" id="USBCLKCTL" location="0x5000cff4"/&gt;
-&lt;peripheralInstance derived_from="LPC17_USBDEV" determined="infoFile" enable="USBCLKCTL.USBClkSt&amp;amp;0x12=0x12" id="USBDEV" location="0x5000C200"/&gt;
-&lt;peripheralInstance derived_from="LPC17_PWM" determined="infoFile" enable="SYSCTL.PCONP.PWM1&amp;amp;0x1" id="PWM" location="0x40018000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_I2C" determined="infoFile" enable="SYSCTL.PCONP.PCI2C0&amp;amp;0x1" id="I2C0" location="0x4001C000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_I2C" determined="infoFile" enable="SYSCTL.PCONP.PCI2C1&amp;amp;0x1" id="I2C1" location="0x4005C000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_I2C" determined="infoFile" enable="SYSCTL.PCONP.PCI2C2&amp;amp;0x1" id="I2C2" location="0x400A0000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_DMA" determined="infoFile" enable="SYSCTL.PCONP.PCGPDMA&amp;amp;0x1" id="DMA" location="0x50004000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_ENET" determined="infoFile" enable="SYSCTL.PCONP.PCENET&amp;amp;0x1" id="ENET" location="0x50000000"/&gt;
-&lt;peripheralInstance derived_from="CM3_DCR" determined="infoFile" id="DCR" location="0xE000EDF0"/&gt;
-&lt;peripheralInstance derived_from="LPC17_PCB" determined="infoFile" id="PCB" location="0x4002c000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_QEI" determined="infoFile" enable="SYSCTL.PCONP.PCQEI&amp;amp;0x1" id="QEI" location="0x400bc000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_USBHOST" determined="infoFile" enable="USBCLKCTL.USBClkSt&amp;amp;0x11=0x11" id="USBHOST" location="0x5000C000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_USBOTG" determined="infoFile" enable="USBCLKCTL.USBClkSt&amp;amp;0x1c=0x1c" id="USBOTG" location="0x5000C000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_RTC" determined="infoFile" enable="SYSCTL.PCONP.PCRTC&amp;amp;0x1" id="RTC" location="0x40024000"/&gt;
-&lt;peripheralInstance derived_from="MPU" determined="infoFile" id="MPU" location="0xE000ED90"/&gt;
-&lt;peripheralInstance derived_from="LPC1x_WDT" determined="infoFile" id="WDT" location="0x40000000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_FLASHCFG" determined="infoFile" id="FLASHACCEL" location="0x400FC000"/&gt;
-&lt;peripheralInstance derived_from="GPIO_INT" determined="infoFile" id="GPIOINTMAP" location="0x40028080"/&gt;
-&lt;peripheralInstance derived_from="LPC17_CANAFR" determined="infoFile" enable="SYSCTL.PCONP.PCCAN1&amp;amp;0x1|SYSCTL.PCONP.PCCAN2&amp;amp;0x1" id="CANAFR" location="0x4003C000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_CANCEN" determined="infoFile" enable="SYSCTL.PCONP.PCCAN1&amp;amp;0x1|SYSCTL.PCONP.PCCAN2&amp;amp;0x1" id="CANCEN" location="0x40040000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_CANWAKESLEEP" determined="infoFile" id="CANWAKESLEEP" location="0x400FC110"/&gt;
-&lt;peripheralInstance derived_from="LPC17_CANCON" determined="infoFile" enable="SYSCTL.PCONP.PCCAN1&amp;amp;0x1" id="CANCON1" location="0x40044000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_CANCON" determined="infoFile" enable="SYSCTL.PCONP.PCCAN2&amp;amp;0x1" id="CANCON2" location="0x40048000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_MCPWM" determined="infoFile" enable="SYSCTL.PCONP.PCMCPWM&amp;amp;0x1" id="MCPWM" location="0x400B8000"/&gt;
-&lt;peripheralInstance derived_from="LPC17_FMC" determined="infoFile" id="FMC" location="0x40084000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_NVIC" id="NVIC" location="0xE000E000"/&gt;
+&lt;peripheralInstance derived_from="TIMER" enable="SYSCTL.PCONP.PCTIM0&amp;amp;0x1" id="TIMER0" location="0x40004000"/&gt;
+&lt;peripheralInstance derived_from="TIMER" enable="SYSCTL.PCONP.PCTIM1&amp;amp;0x1" id="TIMER1" location="0x40008000"/&gt;
+&lt;peripheralInstance derived_from="TIMER" enable="SYSCTL.PCONP.PCTIM2&amp;amp;0x1" id="TIMER2" location="0x40090000"/&gt;
+&lt;peripheralInstance derived_from="TIMER" enable="SYSCTL.PCONP.PCTIM3&amp;amp;0x1" id="TIMER3" location="0x40094000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_RIT" enable="SYSCTL.PCONP.PCRIT&amp;amp;0x1" id="RIT" location="0x400B0000"/&gt;
+&lt;peripheralInstance derived_from="FGPIO" enable="SYSCTL.PCONP.PCGPIO&amp;amp;0x1" id="GPIO0" location="0x2009C000"/&gt;
+&lt;peripheralInstance derived_from="FGPIO" enable="SYSCTL.PCONP.PCGPIO&amp;amp;0x1" id="GPIO1" location="0x2009C020"/&gt;
+&lt;peripheralInstance derived_from="FGPIO" enable="SYSCTL.PCONP.PCGPIO&amp;amp;0x1" id="GPIO2" location="0x2009C040"/&gt;
+&lt;peripheralInstance derived_from="FGPIO" enable="SYSCTL.PCONP.PCGPIO&amp;amp;0x1" id="GPIO3" location="0x2009C060"/&gt;
+&lt;peripheralInstance derived_from="FGPIO" enable="SYSCTL.PCONP.PCGPIO&amp;amp;0x1" id="GPIO4" location="0x2009C080"/&gt;
+&lt;peripheralInstance derived_from="LPC17_I2S" enable="SYSCTL.PCONP&amp;amp;0x08000000" id="I2S" location="0x400A8000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_SYSCTL" id="SYSCTL" location="0x400FC000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_DAC" enable="PCB.PINSEL1.P0_26&amp;amp;0x2=2" id="DAC" location="0x4008C000"/&gt;
+&lt;peripheralInstance derived_from="LPC17xx_UART" enable="SYSCTL.PCONP.PCUART0&amp;amp;0x1" id="UART0" location="0x4000C000"/&gt;
+&lt;peripheralInstance derived_from="LPC17xx_UART_MODEM" enable="SYSCTL.PCONP.PCUART1&amp;amp;0x1" id="UART1" location="0x40010000"/&gt;
+&lt;peripheralInstance derived_from="LPC17xx_UART" enable="SYSCTL.PCONP.PCUART2&amp;amp;0x1" id="UART2" location="0x40098000"/&gt;
+&lt;peripheralInstance derived_from="LPC17xx_UART" enable="SYSCTL.PCONP.PCUART3&amp;amp;0x1" id="UART3" location="0x4009C000"/&gt;
+&lt;peripheralInstance derived_from="SPI" enable="SYSCTL.PCONP.PCSPI&amp;amp;0x1" id="SPI" location="0x40020000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_SSP" enable="SYSCTL.PCONP.PCSSP0&amp;amp;0x1" id="SSP0" location="0x40088000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_SSP" enable="SYSCTL.PCONP.PCSSP1&amp;amp;0x1" id="SSP1" location="0x40030000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_ADC" enable="SYSCTL.PCONP.PCAD&amp;amp;0x1" id="ADC" location="0x40034000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_USBINTST" enable="USBCLKCTL.USBClkCtrl&amp;amp;0x12" id="USBINTSTAT" location="0x400fc1c0"/&gt;
+&lt;peripheralInstance derived_from="LPC17_USB_CLK_CTL" id="USBCLKCTL" location="0x5000cff4"/&gt;
+&lt;peripheralInstance derived_from="LPC17_USBDEV" enable="USBCLKCTL.USBClkSt&amp;amp;0x12=0x12" id="USBDEV" location="0x5000C200"/&gt;
+&lt;peripheralInstance derived_from="LPC17_PWM" enable="SYSCTL.PCONP.PWM1&amp;amp;0x1" id="PWM" location="0x40018000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_I2C" enable="SYSCTL.PCONP.PCI2C0&amp;amp;0x1" id="I2C0" location="0x4001C000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_I2C" enable="SYSCTL.PCONP.PCI2C1&amp;amp;0x1" id="I2C1" location="0x4005C000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_I2C" enable="SYSCTL.PCONP.PCI2C2&amp;amp;0x1" id="I2C2" location="0x400A0000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_DMA" enable="SYSCTL.PCONP.PCGPDMA&amp;amp;0x1" id="DMA" location="0x50004000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_ENET" enable="SYSCTL.PCONP.PCENET&amp;amp;0x1" id="ENET" location="0x50000000"/&gt;
+&lt;peripheralInstance derived_from="CM3_DCR" id="DCR" location="0xE000EDF0"/&gt;
+&lt;peripheralInstance derived_from="LPC17_PCB" id="PCB" location="0x4002c000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_QEI" enable="SYSCTL.PCONP.PCQEI&amp;amp;0x1" id="QEI" location="0x400bc000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_USBHOST" enable="USBCLKCTL.USBClkSt&amp;amp;0x11=0x11" id="USBHOST" location="0x5000C000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_USBOTG" enable="USBCLKCTL.USBClkSt&amp;amp;0x1c=0x1c" id="USBOTG" location="0x5000C000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_RTC" enable="SYSCTL.PCONP.PCRTC&amp;amp;0x1" id="RTC" location="0x40024000"/&gt;
+&lt;peripheralInstance derived_from="MPU" id="MPU" location="0xE000ED90"/&gt;
+&lt;peripheralInstance derived_from="LPC1x_WDT" id="WDT" location="0x40000000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_FLASHCFG" id="FLASHACCEL" location="0x400FC000"/&gt;
+&lt;peripheralInstance derived_from="GPIO_INT" id="GPIOINTMAP" location="0x40028080"/&gt;
+&lt;peripheralInstance derived_from="LPC17_CANAFR" enable="SYSCTL.PCONP.PCCAN1&amp;amp;0x1|SYSCTL.PCONP.PCCAN2&amp;amp;0x1" id="CANAFR" location="0x4003C000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_CANCEN" enable="SYSCTL.PCONP.PCCAN1&amp;amp;0x1|SYSCTL.PCONP.PCCAN2&amp;amp;0x1" id="CANCEN" location="0x40040000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_CANWAKESLEEP" id="CANWAKESLEEP" location="0x400FC110"/&gt;
+&lt;peripheralInstance derived_from="LPC17_CANCON" enable="SYSCTL.PCONP.PCCAN1&amp;amp;0x1" id="CANCON1" location="0x40044000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_CANCON" enable="SYSCTL.PCONP.PCCAN2&amp;amp;0x1" id="CANCON2" location="0x40048000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_MCPWM" enable="SYSCTL.PCONP.PCMCPWM&amp;amp;0x1" id="MCPWM" location="0x400B8000"/&gt;
+&lt;peripheralInstance derived_from="LPC17_FMC" id="FMC" location="0x40084000"/&gt;
 &lt;/chip&gt;
 &lt;processor&gt;&lt;name gcc_name="cortex-m3"&gt;Cortex-M3&lt;/name&gt;
 &lt;family&gt;Cortex-M&lt;/family&gt;
@@ -300,17 +892,41 @@
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.release.514344055;com.crt.advproject.config.exe.release.514344055.;com.crt.advproject.gcc.exe.release.1909829756;com.crt.advproject.compiler.input.2099625240">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.897255787;com.crt.advproject.config.exe.debug.897255787.;com.crt.advproject.gcc.exe.debug.1264769792;com.crt.advproject.compiler.input.1728166563">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.897255787;com.crt.advproject.config.exe.debug.897255787.;com.crt.advproject.gas.exe.debug.51313821;com.crt.advproject.assembler.input.1655531402">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.release.514344055;com.crt.advproject.config.exe.release.514344055.;com.crt.advproject.gas.exe.release.1233252549;com.crt.advproject.assembler.input.947954110">
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.897255787.6152727;com.crt.advproject.config.exe.debug.897255787.6152727.;com.crt.advproject.gas.exe.debug.1490103912;com.crt.advproject.assembler.input.454794046">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.897255787;com.crt.advproject.config.exe.debug.897255787.;com.crt.advproject.gas.exe.debug.1656329395;com.crt.advproject.assembler.input.1443899740">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.897255787;com.crt.advproject.config.exe.debug.897255787.;com.crt.advproject.gcc.exe.debug.1225049255;com.crt.advproject.compiler.input.438723982">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.release.514344055;com.crt.advproject.config.exe.release.514344055.;com.crt.advproject.gcc.exe.release.1909829756;com.crt.advproject.compiler.input.2099625240">
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.897255787.1976601377;com.crt.advproject.config.exe.debug.897255787.1976601377.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.47250596;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.241741492">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.897255787;com.crt.advproject.config.exe.debug.897255787.;com.crt.advproject.gas.exe.debug.720096580;com.crt.advproject.assembler.input.1890406778">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.897255787.6152727;com.crt.advproject.config.exe.debug.897255787.6152727.;com.crt.advproject.gcc.exe.debug.1924733015;com.crt.advproject.compiler.input.309917836">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.897255787;com.crt.advproject.config.exe.debug.897255787.;com.crt.advproject.gcc.exe.debug.1523307521;com.crt.advproject.compiler.input.1717862733">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.release.514344055;com.crt.advproject.config.exe.release.514344055.;com.crt.advproject.gas.exe.release.1233252549;com.crt.advproject.assembler.input.947954110">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.crt.advproject.config.exe.debug.897255787;com.crt.advproject.config.exe.debug.897255787.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1275024954;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.23827845">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>

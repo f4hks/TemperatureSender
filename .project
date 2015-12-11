@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>freertos_blinky</name>
+	<name>temperature_sender</name>
 	<comment></comment>
 	<projects>
-		<project>CMSISv2p00_LPC17xx</project>
-		<project>freertos_blinky</project>
-		<project>lpc_board_nxp_lpcxpresso_1769</project>
-		<project>lpc_chip_175x_6x</project>
+		<project>FreeRTOS-Products</project>
 		<project>lpc17xx.cmsis.driver.library</project>
-		<project>periph_timer</project>
-		<project>periph_uart_rb</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
