@@ -17,6 +17,7 @@ typedef struct{
 
 	portLONG FreqUency[32];
 	portLONG NFSK;
+	portLONG debit;
 }__attribute__((__packed__, aligned(2))) xPWMCfg;
 
 
