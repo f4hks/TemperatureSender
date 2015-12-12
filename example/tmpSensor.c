@@ -3,8 +3,7 @@
  *
  *  @date: 1 déc. 2015
  *  @Author: pierre
- *  @brief : This file is the implementation of use a temperature sensor , it use soft timers for get the values on the ADC
- *
+ *  @brief : This file is an implementation of use a temperature sensor , it use interruption for the conversion of signal and messages queue 
  */
 
 #include "FreeRTOS.h"
