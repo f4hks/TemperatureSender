@@ -21,14 +21,17 @@
 xQueueHandle xAX25Queue;
 xTaskHandle Ax25CFG;
 xTaskHandle Ax25Encode;
+xTaskHandle Ax25Send;
 xQueueHandle xAX25Cfg;
 xQueueHandle xAX25pipe;
 AX_25_CFG cfg_ax25;
-
+AX_25 trame;
+AX_25_SEND_DATA datas;
 
 P_AX_25 *pAX25trame;
 static void vAX25taskBase(void *pvParameters);
 static void vAX25cfg(void *pvParameters);
+static void vAX25send(void *pvParameters);
 static void Nrzi(unsigned char *Mess);
 static unsigned char Bit_Reverse( unsigned char x );
 /*!
@@ -44,13 +47,14 @@ xQueueHandle xStartAX25task(void){
 xQueueHandle xStartAx25Cfg(void){
   //vTaskSuspend(Ax25Encode);
   xAX25Cfg=xQueueCreate(SizeQueue,sizeof(AX_25_CFG));
-  //xTaskCreate(vAX25cfg,(signed portCHAR*)"AX25conf",configMINIMAL_STACK_SIZE,NULL,tskIDLE_PRIORITY+1,&Ax25CFG);
+  xTaskCreate(vAX25cfg,(signed portCHAR*)"AX25conf",configMINIMAL_STACK_SIZE,NULL,tskIDLE_PRIORITY+1,&Ax25CFG);
   //vTaskResume(Ax25Encode);
   return xAX25Cfg;
 
 }
 xQueueHandle xStartAX25pipe(void){
   xAX25pipe=xQueueCreate(SizeQueue,sizeof(AX_25));
+  xTaskCreate(vAX25send,(signed portCHAR*)"AX25send",configMINIMAL_STACK_SIZE,NULL,tskIDLE_PRIORITY+1,&Ax25Send);
   return xAX25pipe;
 }
 /*!
@@ -60,14 +64,9 @@ xQueueHandle xStartAX25pipe(void){
 void vAX25taskBase(void *pvParameters){
   for(;;)
     {
-
-
-      AX_25 trame;
-      AX_25_SEND_DATA datas;
-      //vTaskSuspendAll();
       //pAX25trame= pvPortMalloc(1*sizeof(P_AX_25));
       portBASE_TYPE  xGetDataAX25stat;
-      portBASE_TYPE  xSendDataStat;
+
       portBASE_TYPE  xGetCfgStat;
       unsigned portBASE_TYPE size;
       unsigned portBASE_TYPE size_fullmessage;
@@ -155,33 +154,12 @@ void vAX25taskBase(void *pvParameters){
       trame.fullmessage[size_fullmessage++]=(unsigned char)AX25_Flags;
       Nrzi(trame.fullmessage);
       //Envoyer le tout vers une file de message
-      xSendDataStat=xQueueSend(xAX25pipe,&trame,portMAX_DELAY);
-      if(xSendDataStat!=pdTRUE){
-	  vPortFree(trame.dest_id);
-	  vPortFree(trame.send_id);
-	  vPortFree(trame.message);
-	  vPortFree(trame.fullmessage);
-	  vPortFree(trame.stuffedFrame);
-	  trame.message=NULL;
-	  trame.dest_id=NULL;
-	  trame.send_id=NULL;
-	  trame.fullmessage=NULL;
-	  trame.stuffedFrame=NULL;
-      }
-      else{
-	  vPortFree(trame.dest_id);
-	  vPortFree(trame.send_id);
-	  vPortFree(trame.message);
-	  vPortFree(trame.fullmessage);
-	  vPortFree(trame.stuffedFrame);
-	  trame.message=NULL;
-	  trame.dest_id=NULL;
-	  trame.send_id=NULL;
-	  trame.fullmessage=NULL;
-	  trame.stuffedFrame=NULL;
-      }
+      //
 
       taskEXIT_CRITICAL();
+      vTaskDelay(1000/portTICK_RATE_MS);
+
+
 
 
 
@@ -210,6 +188,42 @@ void vAX25cfg(void *pvParameters){
 	  vTaskSuspend(NULL);
       }
     }
+}
+void vAX25send(void *pvParameters){
+  for(;;){
+      //taskENTER_CRITICAL();
+      portBASE_TYPE  xSendDataStat;
+      xSendDataStat=xQueueSend(xAX25pipe,&trame,portMAX_DELAY);
+      if(xSendDataStat!=pdTRUE){
+	  vPortFree(trame.dest_id);
+	  vPortFree(trame.send_id);
+	  vPortFree(trame.message);
+	  vPortFree(trame.fullmessage);
+	  vPortFree(trame.stuffedFrame);
+	  trame.message=NULL;
+	  trame.dest_id=NULL;
+	  trame.send_id=NULL;
+	  trame.fullmessage=NULL;
+	  trame.stuffedFrame=NULL;
+      }
+      else{
+	  vPortFree(trame.dest_id);
+	  vPortFree(trame.send_id);
+	  vPortFree(trame.message);
+	  vPortFree(trame.fullmessage);
+	  vPortFree(trame.stuffedFrame);
+	  trame.message=NULL;
+	  trame.dest_id=NULL;
+	  trame.send_id=NULL;
+	  trame.fullmessage=NULL;
+	  trame.stuffedFrame=NULL;
+      }
+      //portEXIT_CRITICAL();
+      vTaskDelay(1000/portTICK_RATE_MS);
+
+  }
+
+
 }
 /*!
  * @fn shiftmessageleft

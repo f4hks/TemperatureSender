@@ -4,3 +4,4 @@
 core.*
 .cproject*
 *.cproject
+build/
