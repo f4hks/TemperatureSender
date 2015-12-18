@@ -92,7 +92,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.crt.advproject.config.exe.debug.897255787.844298646" name="lcd.h" rcbsApplicability="disable" resourcePath="example/lcd.h" toolsToInvoke=""/>
 					<folderInfo id="com.crt.advproject.config.exe.debug.897255787.426493458" name="/" resourcePath="src">
 						<toolChain id="com.crt.advproject.toolchain.exe.debug.36906038" name="NXP MCU Tools" superClass="com.crt.advproject.toolchain.exe.debug">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.debug" name="ARM-based MCU (Debug)" superClass="com.crt.advproject.platform.exe.debug"/>
@@ -157,6 +156,7 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.crt.advproject.config.exe.debug.897255787.844298646" name="lcd.h" rcbsApplicability="disable" resourcePath="example/lcd.h" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry excluding="lcd.h|lcd.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="example"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="freertos"/>
@@ -392,7 +392,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.crt.advproject.config.exe.debug.897255787.6152727.example/lcd.h" name="lcd.h" rcbsApplicability="disable" resourcePath="example/lcd.h" toolsToInvoke=""/>
 					<folderInfo id="com.crt.advproject.config.exe.debug.897255787.6152727.src" name="/" resourcePath="src">
 						<toolChain id="com.crt.advproject.toolchain.exe.debug.1213059012" name="NXP MCU Tools" superClass="com.crt.advproject.toolchain.exe.debug" unusedChildren="">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.debug.2016656150" name="ARM-based MCU (Debug)" superClass="com.crt.advproject.platform.exe.debug"/>
@@ -418,6 +417,7 @@
 							<tool id="com.crt.advproject.link.exe.debug.1165274355" name="MCU Linker" superClass="com.crt.advproject.link.exe.debug.211393833"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.crt.advproject.config.exe.debug.897255787.6152727.example/lcd.h" name="lcd.h" rcbsApplicability="disable" resourcePath="example/lcd.h" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry excluding="lcd.h|lcd.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="example"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="freertos"/>
