@@ -60,18 +60,14 @@ xQueueHandle xStartAX25pipe(void){
 void vAX25taskBase(void *pvParameters){
   for(;;)
     {
-
-
       AX_25 trame;
       AX_25_SEND_DATA datas;
-      //vTaskSuspendAll();
-      //pAX25trame= pvPortMalloc(1*sizeof(P_AX_25));
       portBASE_TYPE  xGetDataAX25stat;
       portBASE_TYPE  xSendDataStat;
       portBASE_TYPE  xGetCfgStat;
       unsigned portBASE_TYPE size;
       unsigned portBASE_TYPE size_fullmessage;
-      unsigned portBASE_TYPE lenght_sendid,cntsendid,lenght_dest_id,cntdestid,cnt;
+      unsigned portBASE_TYPE lenght_sendid,cntsendid,lenght_dest_id,cntdestid;
       vTaskDelay(1000*portTICK_RATE_MS);
       xGetDataAX25stat=xQueueReceive(xAX25Queue,&datas,portMAX_DELAY);
       while(xGetDataAX25stat!=pdTRUE);
@@ -113,7 +109,7 @@ void vAX25taskBase(void *pvParameters){
 	  while(cntdestid++<AX25_ADD_MAX_Size)
 	    {
 	      trame.message[size++]=' ';
-	  }
+	    }
       }
       /*Insertion du PID */
       size=strlen((portCHAR*)trame.message);
@@ -155,17 +151,35 @@ void vAX25taskBase(void *pvParameters){
       trame.fullmessage[size_fullmessage++]=(unsigned char)AX25_Flags;
       Nrzi(trame.fullmessage);
       //Envoyer le tout vers une file de message
+      xSendDataStat=xQueueSend(xAX25pipe,&trame,portMAX_DELAY);
+      if(xSendDataStat!=pdTRUE){
+	  Board_UARTPutSTR("frame was send !\n\r");
+	  vPortFree(trame.dest_id);
+	  vPortFree(trame.send_id);
+	  vPortFree(trame.message);
+	  vPortFree(trame.fullmessage);
+	  vPortFree(trame.stuffedFrame);
+	  trame.message=NULL;
+	  trame.dest_id=NULL;
+	  trame.send_id=NULL;
+	  trame.fullmessage=NULL;
+	  trame.stuffedFrame=NULL;
 
-      vPortFree(trame.dest_id);
-      vPortFree(trame.send_id);
-      vPortFree(trame.message);
-      vPortFree(trame.fullmessage);
-      vPortFree(trame.stuffedFrame);
-      trame.message=NULL;
-      trame.dest_id=NULL;
-      trame.send_id=NULL;
-      trame.fullmessage=NULL;
-      trame.stuffedFrame=NULL;
+      }
+      else{
+	  Board_UARTPutSTR("frame was failed on send !\n\r");
+	  vPortFree(trame.dest_id);
+	  vPortFree(trame.send_id);
+	  vPortFree(trame.message);
+	  vPortFree(trame.fullmessage);
+	  vPortFree(trame.stuffedFrame);
+	  trame.message=NULL;
+	  trame.dest_id=NULL;
+	  trame.send_id=NULL;
+	  trame.fullmessage=NULL;
+	  trame.stuffedFrame=NULL;
+      }
+
       taskEXIT_CRITICAL();
 
 
@@ -261,37 +275,37 @@ void Nrzi(unsigned char *Mess){
   bool wasZero;
   while(Cnt++<strlen((portCHAR*)Mess))
     {
-	//0 à 8
-	unsigned char Car=(unsigned portCHAR)Mess[Cnt];
-	while(CntBits++<8)
-	  {
-	    if(Car&(1u<<CntBits))//Si 1
-	      {
-		 if(wasZero==true){//A zéro avant
-		     Car=Car;
-		     wasZero=false;
-		 }
-		 else{//à 1 avant
-		     Car=Car;
-		     wasZero=false;
-		 }
+      //0 à 8
+      unsigned char Car=(unsigned portCHAR)Mess[Cnt];
+      while(CntBits++<8)
+	{
+	  if(Car&(1u<<CntBits))//Si 1
+	    {
+	      if(wasZero==true){//A zéro avant
+		  Car=Car;
+		  wasZero=false;
+	      }
+	      else{//à 1 avant
+		  Car=Car;
+		  wasZero=false;
+	      }
 	    }
-	    else{//à zero
-		if(wasZero==true){//à zero avant
-		    wasZero=true;
-		     Car=Car|1u<<CntBits;//On le met à 1
+	  else{//à zero
+	      if(wasZero==true){//à zero avant
+		  wasZero=true;
+		  Car=Car|1u<<CntBits;//On le met à 1
 
-		}
-		else{//à 1 avant
-		    wasZero=true;
-		    Car=Car&1u<<CntBits;//On le met à 0
-		}
-	    }
-	    Mess[Cnt]=Car;
+	      }
+	      else{//à 1 avant
+		  wasZero=true;
+		  Car=Car&1u<<CntBits;//On le met à 0
+	      }
+	  }
+	  Mess[Cnt]=Car;
 
 	}
 
-  }
+    }
 
 }
 /*!
@@ -308,7 +322,6 @@ void ZeroInsert(unsigned char *frame){
   unsigned int BiTcNt=0;
   unsigned int NextBit=0;
   unsigned int onesCounter=0;
-  unsigned int BitvalAfterStuffed;
   /*On this part the function works character by character */
   while(CnT<SiZeStReAm){
       /*We get the character*/
@@ -322,29 +335,29 @@ void ZeroInsert(unsigned char *frame){
 	  NextBit=CaR&(1u<<(BiTcNt+1));
 	  if(CaR&(1u<<BiTcNt))
 	    {
-	    //Construction de l'octet
-	    if(onesCounter==5){
-		CaRNew=(CaRNew&(unsigned portCHAR)1<<BiTcNt);
-		CaRNew=(CaRNew|NextBit);
-		onesCounter=0;
-		BiTcNt=+1;
-		NumberOfStuffs=+1;
-	    }
-	    else
-	      {
-		CaRNew=(CaRNew|((unsigned portCHAR)1<<BiTcNt));
-		 onesCounter++;//Cas à 1
+	      //Construction de l'octet
+	      if(onesCounter==5){
+		  CaRNew=(CaRNew&(unsigned portCHAR)1<<BiTcNt);
+		  CaRNew=(CaRNew|NextBit);
+		  onesCounter=0;
+		  BiTcNt=+1;
+		  NumberOfStuffs=NumberOfStuffs+1;
 	      }
-	  }
+	      else
+		{
+		  CaRNew=(CaRNew|((unsigned portCHAR)1<<BiTcNt));
+		  onesCounter++;//Cas à 1
+		}
+	    }
 	  else//à zero
 	    {
 	      unsigned char Msk=~(1u<<BiTcNt);
 	      CaRNew=(CaRNew&(Msk));
 	      onesCounter=0;//Reset the ones counter
 
-	  }
+	    }
 	  BiTcNt++;
-      }
+	}
       BiTcNt=0;
       frame[CnT]=CaRNew;
       CnT++;
@@ -359,10 +372,10 @@ void ZeroInsert(unsigned char *frame){
  */
 unsigned char Bit_Reverse( unsigned char x )
 {
-    x = ((x >> 1) & 0x55) | ((x << 1) & 0xaa);
-    x = ((x >> 2) & 0x33) | ((x << 2) & 0xcc);
-    x = ((x >> 4) & 0x0f) | ((x << 4) & 0xf0);
-    return x;
+  x = ((x >> 1) & 0x55) | ((x << 1) & 0xaa);
+  x = ((x >> 2) & 0x33) | ((x << 2) & 0xcc);
+  x = ((x >> 4) & 0x0f) | ((x << 4) & 0xf0);
+  return x;
 }
 /*!
  * @fn insertdata
@@ -382,6 +395,7 @@ unsigned int  insertdata(unsigned char *p_Message,unsigned char *p_Data,unsigned
   }
   return cnt;
 }
+#if 0
 /*!
  * \fn makeax25payload
  * \brief Make an AX25 frame
@@ -425,4 +439,4 @@ void makeax25payload(const unsigned char*stationSSID,const unsigned char*SSIDDes
 
 }
 
-
+#endif
