@@ -3,4 +3,4 @@
 /freertos/
 core.*
 .cproject*
-.cproject
+*.cproject
