@@ -28,9 +28,14 @@ typedef struct{
 typedef struct{
 	portFLOAT mVolts;
 	uint16_t Temperature;
+	uint16_t Values[10];
 	portFLOAT temp_finale;
 }__attribute__((__packed__, aligned(2))) xTmpSensorResult;
 #define VOLTAGEDIV (3.3/4096)
 #define CONVERT_MV_TO_C 500
 #define DIV_REPORT 10
+#define _ADC_CHANNLE ADC_CH1
+#define _LPC_ADC_ID LPC_ADC
+#define MAX_TIME 0xffff
+#define _GPDMA_CONN_ADC GPDMA_CONN_ADC
 #endif /* TMPSENSOR_H_ */
