@@ -194,17 +194,11 @@ static void xTaskGetTemperatureResults(void)
 		  //vTaskResume(TsksendAX25);
 	      }
 
-	      datasenvoye.dest_id=(unsigned portCHAR*)"WIDE";
-	      datasenvoye.message=(unsigned portCHAR*)"The quick brown fox jumps over the lazy dog ";
-	      cfgdatas.send_id="F4HKS";
-	      xStatus1=xQueueSend(xAX25datas,&datasenvoye,portMAX_DELAY);
-	      if(xStatus1!=pdPASS){
-		  Board_UARTPutSTR("Erreur !\n\r");
-	      }
-	      xStatus2=xQueueSend(xConfigConAX25,&cfgdatas,portMAX_DELAY);
-	      if(xStatus2){
-		  Board_UARTPutSTR("Fail !\n\r");
-	      }
+
+	      //xStatus2=xQueueSend(xConfigConAX25,&cfgdatas,portMAX_DELAY);
+	      //if(xStatus2){
+	      //Board_UARTPutSTR("Fail !\n\r");
+	      //}
 
 
 
@@ -217,6 +211,7 @@ static void xTaskGetTemperatureResults(void)
 
 
 }
+
 static void taskSendParameters(void *pVparam)
 {
   for(;;){
@@ -226,7 +221,7 @@ static void taskSendParameters(void *pVparam)
       xStatusCFGSEND=xQueueSend(xConfigConAX25,&cfgdatas,portMAX_DELAY);
       if(xStatusCFGSEND!=pdTRUE){
 	  //vTaskSuspend(TskTemp);
-	  Board_UARTPutSTR("Fail on taskCreateMessage !\n\r");
+	  Board_UARTPutSTR("Fail on taskSendParameters !\n\r");
 	  //vTaskResume(TskTemp);
 
       }
@@ -238,35 +233,53 @@ static void taskSendParameters(void *pVparam)
 
       }
       //vTaskResume(TsksendAX25);
-      //vTaskSuspend(NULL);
+      vTaskSuspend(NULL);
       //vTaskDelay(30*portTICK_RATE_MS);
   }
 }
+
 static void taskCreateMessage(void *pVparam)
 {
   for(;;){
 
-   //vTaskSuspend(TskTemp);
-   //vTaskSuspend(TskGetx25);
-  datasenvoye.message=(unsigned portCHAR*)tempe.pcMessage;
-  datasenvoye.dest_id=(unsigned portCHAR*)"WIDE";
-  xStatusAX25CodingTask=xQueueSend(xAX25datas,&datasenvoye,portMAX_DELAY);
-  if(xStatusAX25CodingTask!=pdTRUE){
-     //vTaskSuspend(TskTemp);
-     Board_UARTPutSTR("Failling on taskCreateMessage !\n\r");
-
-
-
-  }
-  else{
       //vTaskSuspend(TskTemp);
-      //Board_UARTPutSTR("Success on taskCreateMessage !\n\r");
+      //vTaskSuspend(TskGetx25);
+      cfgdatas.send_id=(unsigned portCHAR*)"F4HKS";
+      portBASE_TYPE xStatusCFGSEND;
+      xStatusCFGSEND=xQueueSend(xConfigConAX25,&cfgdatas,portMAX_DELAY);
+      if(xStatusCFGSEND!=pdTRUE){
+	  //vTaskSuspend(TskTemp);
+	  Board_UARTPutSTR("Fail on taskSendParameters !\n\r");
+	  //vTaskResume(TskTemp);
+
+      }
+      else{
+	  //vTaskSuspend(TskTemp);
+	  //Board_UARTPutSTR("Success on taskCreateMessage !\n\r");
+	  //vTaskResume(TskTemp);
 
 
-  }
-  vTaskResume(TskTemp);
-  //vTaskResume(TskGetx25);
-  //vPortFree(trame_ax25);//important
+      }
+      datasenvoye.dest_id=(unsigned portCHAR*)"WIDE";
+      datasenvoye.message=(unsigned portCHAR*)"The quick brown fox jumps over the lazy dog ";
+      xStatusAX25CodingTask=xQueueSend(xAX25datas,&datasenvoye,portMAX_DELAY);
+      if(xStatusAX25CodingTask!=pdPASS){
+	  Board_UARTPutSTR("Erreur !\n\r");
+      }
+      else
+
+	{
+	  //vTaskSuspend(TskTemp);
+	  //Board_UARTPutSTR("Success on taskCreateMessage !\n\r");
+
+
+	}
+
+      //cfgdatas.send_id="F4HKS";
+
+      //vTaskResume(TskTemp);
+      //vTaskResume(TskGetx25);
+      //vPortFree(trame_ax25);//important
 
 
 
@@ -275,21 +288,20 @@ static void taskCreateMessage(void *pVparam)
   }
 }
 static void taskGetMessages(void *pVparam){
-    for(;;){
-	//vTaskSuspend(TsksendAX25);
-	xStatusAX25GetData=xQueueReceive(xAX25pipedata,&tramegenere,portMAX_DELAY);
-	if(xStatusAX25GetData!=pdTRUE){
-	    Board_UARTPutSTR("Fail on get ax 25 \n\r");
-	}
-	else{
-	    Board_UARTPutSTR((char*)tramegenere.endmessage);
-	    Board_UARTPutSTR("\r\r");
-	}
-	//vTaskResume(TsksendAX25);
+  for(;;){
+      xStatusAX25GetData=xQueueReceive(xAX25pipedata,&tramegenere,portMAX_DELAY);
+      if(xStatusAX25GetData!=pdTRUE){
+	  Board_UARTPutSTR("Fail on get ax 25 \n\r");
+      }
+      else{
+	  Board_UARTPutSTR((char*)tramegenere.fullmessage);
+	  Board_UARTPutSTR("\r\r");
+      }
+      vTaskDelay(2000/portTICK_RATE_MS);
 
 
 
-    }
+  }
 
 
 }
@@ -524,9 +536,9 @@ int main(void)
 
   //xTaskCreate(taskSendParameters,(const signed char *) "vAx25",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskcfgAX25);
 
-  //xTaskCreate(taskCreateMessage,(const signed char *) "vAx25",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TsksendAX25);
+  xTaskCreate(taskCreateMessage,(const signed char *) "vAx25",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TsksendAX25);
 
-  //xTaskCreate(taskGetMessages,(const signed char *) "vAx25Get",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskGetx25);
+  xTaskCreate(taskGetMessages,(const signed char *) "vAx25Get",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskGetx25);
   /* Start the scheduler */
   vTaskStartScheduler();
 
