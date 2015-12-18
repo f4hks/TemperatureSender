@@ -41,19 +41,29 @@
 //#include "lcd.h"
 #include "HD44780.h"
 #include <stdlib.h>
-P_AX_25 trame_ax25=NULL;
-xQueueHandle xQueue;
-xQueueHandle xLCDQueue;
-xQueueHandle xMesureQueue;
+P_AX_25 trame_ax25;
+AX_25_CFG cfgdatas;
+AX_25_SEND_DATA datasenvoye;
+AX_25 tramegenere;
+xQueueHandle xQueue=NULL;
+xQueueHandle xLCDQueue=NULL;
+xQueueHandle xMesureQueue=NULL;
 xQueueHandle xCfgMeusureQueue=NULL;
+xQueueHandle xConfigConAX25=NULL;
+xQueueHandle xAX25pipedata=NULL;
+xQueueHandle xAX25datas=NULL;
+xTaskHandle TskcfgAX25=NULL;
+xTaskHandle TskTemp=NULL;
+xTaskHandle TsksendAX25=NULL;
+xTaskHandle TskGetx25=NULL;
 portBASE_TYPE xStatusADCCFG=0;
 portBASE_TYPE xStatusADCRESULT=0;
+portBASE_TYPE xStatusAX25CodingTask;
+portBASE_TYPE xStatusAX25sendTask;
+portBASE_TYPE xStatusAX25GetData;
 xLCDMessage tempe;
 xLCDMessage toto= { 0, 0, "LCD TEST" };
-#if 0
-struct hd44780_data lcd_cfg;
-struct hd44780_driver lcd_driver;
-#endif
+
 struct AMessage
 {
   char ucMessageID;
@@ -132,14 +142,19 @@ static void EnvoieConfig(void){
 }
 static void xTaskGetTemperatureResults(void)
 {
+
   xTmpSensorResult Result;
   char buf[4];
   char Celcius[6];
   portBASE_TYPE xStatus;
+  portBASE_TYPE xStatus1;
+  portBASE_TYPE xStatus2;
 
   for(;;){
+      //vTaskSuspend(TsksendAX25);//Arret de la tache sendAX25
       if(xMesureQueue!=NULL)
 	{
+	  //vTaskSuspend(TsksendAX25);
 	  xStatusADCRESULT=xQueueReceive(xMesureQueue,&Result,portMAX_DELAY );
 	  if(xStatusADCRESULT!= pdPASS )
 	    {
@@ -167,20 +182,114 @@ static void xTaskGetTemperatureResults(void)
 	      strncat(tempe.pcMessage,(char*)" C",2);
 
 	      xStatus = xQueueSend( xLCDQueue, &tempe, portMAX_DELAY );
-	            if( xStatus != pdPASS )
-	      	{
-	      	  /* The send operation could not complete because the queue was full -
+	      if( xStatus != pdPASS )
+		{
+		  /* The send operation could not complete because the queue was full -
 	      										this must be an error as the queue should never contain more than
 	      										one item! */
-	      	  Board_UARTPutSTR( "Could not send to the queue.\r\n" );
-	      	}
+		  Board_UARTPutSTR( "Could not send to the queue.\r\n" );
+		}
+	      else{
+
+		  //vTaskResume(TsksendAX25);
+	      }
+
+	      datasenvoye.dest_id=(unsigned portCHAR*)"WIDE";
+	      datasenvoye.message=(unsigned portCHAR*)"Salut toto";
+	      cfgdatas.send_id="F4HKS";
+	      xStatus1=xQueueSend(xAX25datas,&datasenvoye,portMAX_DELAY);
+	      if(xStatus1!=pdPASS){
+		  Board_UARTPutSTR("Erreur !\n\r");
+	      }
+	      xStatus2=xQueueSend(xConfigConAX25,&cfgdatas,portMAX_DELAY);
+	      if(xStatus2){
+		  Board_UARTPutSTR("Fail !\n\r");
+	      }
 
 
 
 	  }
+
+	  vTaskDelay(3000*portTICK_RATE_MS);
 	}
 
   }
+
+
+}
+static void taskSendParameters(void *pVparam)
+{
+  for(;;){
+      //vTaskSuspend(TsksendAX25);
+      cfgdatas.send_id=(unsigned portCHAR*)"F4HKS";
+      portBASE_TYPE xStatusCFGSEND;
+      xStatusCFGSEND=xQueueSend(xConfigConAX25,&cfgdatas,portMAX_DELAY);
+      if(xStatusCFGSEND!=pdTRUE){
+	  //vTaskSuspend(TskTemp);
+	  Board_UARTPutSTR("Fail on taskCreateMessage !\n\r");
+	  //vTaskResume(TskTemp);
+
+      }
+      else{
+	  //vTaskSuspend(TskTemp);
+	  //Board_UARTPutSTR("Success on taskCreateMessage !\n\r");
+	  //vTaskResume(TskTemp);
+
+
+      }
+      //vTaskResume(TsksendAX25);
+      //vTaskSuspend(NULL);
+      //vTaskDelay(30*portTICK_RATE_MS);
+  }
+}
+static void taskCreateMessage(void *pVparam)
+{
+  for(;;){
+
+   //vTaskSuspend(TskTemp);
+   //vTaskSuspend(TskGetx25);
+  datasenvoye.message=(unsigned portCHAR*)tempe.pcMessage;
+  datasenvoye.dest_id=(unsigned portCHAR*)"WIDE";
+  xStatusAX25CodingTask=xQueueSend(xAX25datas,&datasenvoye,portMAX_DELAY);
+  if(xStatusAX25CodingTask!=pdTRUE){
+     //vTaskSuspend(TskTemp);
+     Board_UARTPutSTR("Failling on taskCreateMessage !\n\r");
+
+
+
+  }
+  else{
+      //vTaskSuspend(TskTemp);
+      //Board_UARTPutSTR("Success on taskCreateMessage !\n\r");
+
+
+  }
+  vTaskResume(TskTemp);
+  //vTaskResume(TskGetx25);
+  //vPortFree(trame_ax25);//important
+
+
+
+
+
+  }
+}
+static void taskGetMessages(void *pVparam){
+    for(;;){
+	//vTaskSuspend(TsksendAX25);
+	xStatusAX25GetData=xQueueReceive(xAX25pipedata,&tramegenere,portMAX_DELAY);
+	if(xStatusAX25GetData!=pdTRUE){
+	    Board_UARTPutSTR("Fail on get ax 25 \n\r");
+	}
+	else{
+	    Board_UARTPutSTR((char*)tramegenere.endmessage);
+	    Board_UARTPutSTR("\r\r");
+	}
+	//vTaskResume(TsksendAX25);
+
+
+
+    }
 
 
 }
@@ -197,6 +306,7 @@ static void prvSetupHardware(void)
 }
 /* AX25 thread
  * Appel de la fonction situé dans ax25.c */
+#if 0
 static void vAX25CodingTask(void *pvParameters){
   //portTickType xLastWakeTime;
   bool LedState = false;
@@ -240,6 +350,7 @@ static void vAX25CodingTask(void *pvParameters){
   }
 
 }
+#endif
 /* LED1 toggle thread */
 static void vLEDTask1(void *pvParameters) {
   bool LedState = false;
@@ -381,36 +492,41 @@ int main(void)
 {
   //Hardware setup function
   prvSetupHardware();
-
+  //Mise en place des files de messages
   xLCDQueue = xStartLCDTask();
 
   xMesureQueue = xStartTempTask();
 
   xCfgMeusureQueue=xConfigADC();
-  //File de message
-  xQueue=xQueueCreate(2,sizeof(P_AX_25));
-  xTaskCreate(EnvoieConfig,(signed char *) "Envoie Config",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
+
+  //xQueue=xQueueCreate(2,sizeof(P_AX_25));
+  xConfigConAX25=xStartAx25Cfg();
+  xAX25pipedata=xStartAX25pipe();
+  xAX25datas=xStartAX25task();
+  xTaskCreate(EnvoieConfig,(const signed char *) "Envoie Config",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
   /*Get sensor value*/
-  xTaskCreate(xTaskGetTemperatureResults,(signed char*)"Get results",configMINIMAL_STACK_SIZE,NULL,(tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
+  xTaskCreate(xTaskGetTemperatureResults,(const signed char*)"Get results",configMINIMAL_STACK_SIZE,NULL,(tskIDLE_PRIORITY + 1UL),&TskTemp);
   /* LED1 toggle thread */
-  xTaskCreate(vLEDTask1, (signed char *) "vTaskLed1",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
+  //xTaskCreate(vLEDTask1, (const signed char *) "vTaskLed1",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
 
   /* LED2 toggle thread */
-  xTaskCreate(vLEDTask2, (signed char *) "vTaskLed2",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
+  //xTaskCreate(vLEDTask2, (const signed char *) "vTaskLed2",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
 
 
-  xTaskCreate(vLEDTask3, (signed char *) "vTaskLed3",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
+  //xTaskCreate(vLEDTask3, (const signed char *) "vTaskLed3",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
 
 
   //Led state 4 task handler
-  xTaskCreate(VLEDTask4,(signed char*)"Led state 4 task",configMINIMAL_STACK_SIZE,NULL,(tskIDLE_PRIORITY+2UL),(xTaskHandle *)NULL);
+  //xTaskCreate(VLEDTask4,(const signed char*)"Led state 4 task",configMINIMAL_STACK_SIZE,NULL,(tskIDLE_PRIORITY+2UL),(xTaskHandle *)NULL);
   /* UART output thread, simply counts seconds */
   //xTaskCreate(vUARTTask, (signed char *) "vTaskUart",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
 
 
-  //xTaskCreate(vAX25CodingTask,(signed char *) "vAx25",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
+  //xTaskCreate(taskSendParameters,(const signed char *) "vAx25",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskcfgAX25);
 
+  //xTaskCreate(taskCreateMessage,(const signed char *) "vAx25",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TsksendAX25);
 
+  //xTaskCreate(taskGetMessages,(const signed char *) "vAx25Get",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskGetx25);
   /* Start the scheduler */
   vTaskStartScheduler();
 
