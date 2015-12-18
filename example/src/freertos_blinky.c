@@ -195,7 +195,7 @@ static void xTaskGetTemperatureResults(void)
 	      }
 
 	      datasenvoye.dest_id=(unsigned portCHAR*)"WIDE";
-	      datasenvoye.message=(unsigned portCHAR*)"Salut toto";
+	      datasenvoye.message=(unsigned portCHAR*)"The quick brown fox jumps over the lazy dog ";
 	      cfgdatas.send_id="F4HKS";
 	      xStatus1=xQueueSend(xAX25datas,&datasenvoye,portMAX_DELAY);
 	      if(xStatus1!=pdPASS){
