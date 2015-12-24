@@ -45,6 +45,7 @@ P_AX_25 trame_ax25;
 AX_25_CFG cfgdatas;
 AX_25_SEND_DATA datasenvoye;
 AX_25 tramegenere;
+AX_25_CFG ConfigurationAX25;
 xQueueHandle xQueue=NULL;
 xQueueHandle xLCDQueue=NULL;
 xQueueHandle xMesureQueue=NULL;
@@ -174,7 +175,7 @@ static void xTaskGetTemperatureResults(void)
 	      Board_UARTPutSTR("\n\r");
 	      Board_UARTPutSTR("Temperature :");
 	      Board_UARTPutSTR((char*)Celcius);
-	      Board_UARTPutSTR("°C\n\r ");
+	      Board_UARTPutSTR(" C\n\r ");
 	      //tempe.pcMessage=(char*)Celcius;
 	      memset(tempe.pcMessage, 0, sizeof(tempe.pcMessage));
 	      strncpy(tempe.pcMessage,(char*)"Temp :",strlen("Temp :"));
@@ -204,7 +205,7 @@ static void xTaskGetTemperatureResults(void)
 
 	  }
 
-	  vTaskDelay(3000*portTICK_RATE_MS);
+	  vTaskDelay(1000*portTICK_RATE_MS);
 	}
 
   }
@@ -294,10 +295,11 @@ static void taskGetMessages(void *pVparam){
 	  Board_UARTPutSTR("Fail on get ax 25 \n\r");
       }
       else{
+	  Board_UARTPutSTR("Trame : ");
 	  Board_UARTPutSTR((char*)tramegenere.fullmessage);
 	  Board_UARTPutSTR("\r\r");
       }
-      vTaskDelay(2000/portTICK_RATE_MS);
+      vTaskDelay(1000/portTICK_RATE_MS);
 
 
 
@@ -512,9 +514,13 @@ int main(void)
   xCfgMeusureQueue=xConfigADC();
 
   //xQueue=xQueueCreate(2,sizeof(P_AX_25));
+  ConfigurationAX25=MakeConfig((const unsigned char*)"F4HKS",1);
   xConfigConAX25=xStartAx25Cfg();
   xAX25pipedata=xStartAX25pipe();
   xAX25datas=xStartAX25task();
+  uint32_t Clk=SystemCoreClock;
+  uint32_t dividerClk=Chip_Clock_GetCPUClockDiv();
+
   xTaskCreate(EnvoieConfig,(const signed char *) "Envoie Config",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
   /*Get sensor value*/
   xTaskCreate(xTaskGetTemperatureResults,(const signed char*)"Get results",configMINIMAL_STACK_SIZE,NULL,(tskIDLE_PRIORITY + 1UL),&TskTemp);

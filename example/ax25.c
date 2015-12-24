@@ -35,6 +35,31 @@ static void vAX25send(void *pvParameters);
 static void Nrzi(unsigned char *Mess);
 static unsigned char Bit_Reverse( unsigned char x );
 /*!
+ * \fn MakeFrame
+ * \brief Crée la structure avec les messages
+ */
+AX_25_SEND_DATA MakeFrame(const unsigned portCHAR* Message,const unsigned portCHAR* Dest){
+  AX_25_SEND_DATA localFrame;
+  localFrame.dest_id=malloc(sizeof(unsigned portCHAR*)*strlen((portCHAR*)Dest));
+  strncpy((portCHAR*)localFrame.dest_id,(portCHAR*)Message,strlen((portCHAR*)Dest));
+  localFrame.message=malloc(sizeof(unsigned portCHAR*)*strlen((portCHAR*)Message));
+  strncpy((portCHAR*)localFrame.message,(portCHAR*)Message,strlen((portCHAR*)Message));
+  return localFrame;
+}
+/*!
+ * \fn MakeConfig
+ * \param1 Sender Adresse d'envoi
+ * \param2 PID Indicateur de protocole
+ *
+ */
+AX_25_CFG MakeConfig(const unsigned portCHAR* Sender,unsigned int PID){
+    AX_25_CFG localCfg;
+    localCfg.pid=(unsigned char)PID;
+    localCfg.send_id=malloc(sizeof(unsigned portCHAR*)*strlen((portCHAR*)Sender));
+    strncpy((portCHAR*)localCfg.send_id,(portCHAR*)Sender,strlen((portCHAR*)Sender));
+    return localCfg;
+}
+/*!
  * \fn xStartAX25task
  * \brief Start the encoding task and initialize the queue that contains the data encoded in ax25 (HDLC) format
  */
@@ -64,9 +89,7 @@ xQueueHandle xStartAX25pipe(void){
 void vAX25taskBase(void *pvParameters){
   for(;;)
     {
-      //pAX25trame= pvPortMalloc(1*sizeof(P_AX_25));
       portBASE_TYPE  xGetDataAX25stat;
-
       portBASE_TYPE  xGetCfgStat;
       unsigned portBASE_TYPE size;
       unsigned portBASE_TYPE size_fullmessage;
@@ -102,7 +125,6 @@ void vAX25taskBase(void *pvParameters){
 	  while(cntsendid++<AX25_ADD_MAX_Size){
 	      trame.message[size++]=' ';
 	  }
-
       }
       size=strlen((portCHAR*)trame.message);
       strncat((portCHAR*)trame.message,(portCHAR*)trame.dest_id,strlen((portCHAR*)trame.dest_id));
@@ -136,7 +158,7 @@ void vAX25taskBase(void *pvParameters){
       strncpy((portCHAR*)trame.stuffedFrame,(portCHAR*)trame.message,size);
 
       shiftmessageleft(trame.stuffedFrame);
-      ZeroInsert(trame.stuffedFrame);
+      ZeroInsert(&trame);
       size=strlen((portCHAR*)trame.stuffedFrame);
       trame.fullmessage=NULL;
       trame.fullmessage=pvPortCalloc(size+10,sizeof(unsigned portCHAR));
@@ -153,16 +175,8 @@ void vAX25taskBase(void *pvParameters){
       size_fullmessage=strlen((portCHAR*)trame.fullmessage);
       trame.fullmessage[size_fullmessage++]=(unsigned char)AX25_Flags;
       Nrzi(trame.fullmessage);
-      //Envoyer le tout vers une file de message
-      //
-
       taskEXIT_CRITICAL();
       vTaskDelay(1000/portTICK_RATE_MS);
-
-
-
-
-
     }
 }
 /*!
@@ -316,10 +330,10 @@ void Nrzi(unsigned char *Mess){
 		  Car=Car&1u<<CntBits;//On le met à 0
 	      }
 	  }
-	  Mess[Cnt]=Car;
+
 
 	}
-
+      Mess[Cnt]=Car;
     }
 
 }
@@ -328,55 +342,147 @@ void Nrzi(unsigned char *Mess){
  * @brief Insert zeros in the stream
  * This function insert 0 to avoid 01111110 chars in the frame (for eleminate flags in the stream)
  */
-void ZeroInsert(unsigned char *frame){
-  unsigned int SiZeStReAm=strlen((portCHAR*)frame);
-  unsigned int CnT=0;
-  unsigned portCHAR CaR;
-  unsigned portCHAR CaRNew;
-  unsigned int NumberOfStuffs=0;
-  unsigned int BiTcNt=0;
-  unsigned int NextBit=0;
-  unsigned int onesCounter=0;
-  /*On this part the function works character by character */
-  while(CnT<SiZeStReAm){
-      /*We get the character*/
-      CaR=frame[CnT];
-      /*Work bit by bit*/
-      CaRNew=CaR;
-      NextBit=CaR&(1u<<(BiTcNt+1));
-      while(BiTcNt<(sizeofchar-1))
-	{
-	  /*Sauvegarde de l'état du bit suivant*/
-	  NextBit=CaR&(1u<<(BiTcNt+1));
-	  if(CaR&(1u<<BiTcNt))
-	    {
-	      //Construction de l'octet
-	      if(onesCounter==5){
-		  CaRNew=(CaRNew&(unsigned portCHAR)1<<BiTcNt);
-		  CaRNew=(CaRNew|NextBit);
-		  onesCounter=0;
-		  BiTcNt=+1;
-		  NumberOfStuffs=NumberOfStuffs+1;
+void ZeroInsert(AX_25 *frame)
+{
+  unsigned int ParcourFrameIn=0;
+  unsigned int ParcourFrameOut=0;
+  unsigned int MaskInput=1u;
+  unsigned int maskOutput=1u;
+  unsigned int bitCountIn=0;
+  unsigned int bitCountOut=0;
+  unsigned int OnesCounter=0;
+  //Sécurité(au cas ou:))
+  if(frame->stuffedFrame==NULL){
+      frame->stuffedFrame=pvPortCalloc(strlen((portCHAR*)frame->message)+10,sizeof(unsigned portCHAR));
+  }
+
+  for(ParcourFrameIn=0;ParcourFrameIn<strlen((portCHAR*)frame->message);ParcourFrameIn++){
+      //Tester si outputCont=8
+      for(bitCountIn=0;bitCountIn<7;bitCountIn++){
+	  if((frame->message[ParcourFrameIn])&(1u<<bitCountIn)){
+	      OnesCounter=+1;
+	      if(OnesCounter==5){
+		  //We construct the byte bit by bit
+		  frame->stuffedFrame[ParcourFrameOut]=frame->stuffedFrame[ParcourFrameOut]&(~(1u<<maskOutput));
+		  bitCountOut=+1;//Un bit de plus dans le stream(cas spécial)
+		  maskOutput=+1;
+		  OnesCounter=0;
+		  frame->DebuGstuffingFunction=+1;
 	      }
-	      else
-		{
-		  CaRNew=(CaRNew|((unsigned portCHAR)1<<BiTcNt));
-		  onesCounter++;//Cas à 1
-		}
-	    }
-	  else//à zero
+	      else{
+		  frame->stuffedFrame[ParcourFrameOut]=frame->stuffedFrame[ParcourFrameOut]|(1u<<maskOutput);
+		  MaskInput=MaskInput+1;
+		  maskOutput=+1;
+		  bitCountOut=+1;//Un bit de plus également en sortie
+
+	      }
+	  }
+	  else{
+	      frame->stuffedFrame[ParcourFrameOut]=frame->stuffedFrame[ParcourFrameOut]&(~(1u<<maskOutput));
+	      OnesCounter=0;//Raz du compteur
+	      MaskInput=+1;
+	      maskOutput=+1;
+	      //bitCountIn=+1;//Un bit de plus en entrée traité
+	      bitCountOut=+1;//Un bit de plus également en sortie
+
+	  }
+      }
+      //Sync
+      if(bitCountOut==7){
+	  bitCountOut=0;
+	  maskOutput=0;
+	  ParcourFrameOut=+1;
+      }
+      if(bitCountIn==7)
+	{
+	  bitCountIn=0;
+	  MaskInput=0;
+	}
+  }
+
+
+}
+void ZeroRemove(AX_25 *frame)
+{
+  unsigned int ParcourFrameIn=0;
+  unsigned int ParcourFrameOut=0;
+  unsigned int MaskInput=0;
+  unsigned int maskOutput;
+  unsigned int bitCountIn=0;
+  unsigned int bitCountOut=0;
+  unsigned int OnesCounter=0;
+  unsigned int zeroCounter;
+  //Sécurité(au cas ou:))
+  if(frame->UndecodedMessFromDemod==NULL){
+      frame->ErrorDecoding=true;
+  }
+  else{
+      frame->DestuffedFrame=pvPortCalloc(strlen((portCHAR*)frame->UndecodedMessFromDemod)+10,sizeof(unsigned portCHAR));
+
+      for(ParcourFrameIn=0;ParcourFrameIn<strlen((portCHAR*)frame->UndecodedMessFromDemod);ParcourFrameIn++){
+	  //Tester si outputCont=8
+
+	  if((frame->UndecodedMessFromDemod[ParcourFrameIn])&MaskInput<<bitCountIn){
+	      OnesCounter=+1;
+	      zeroCounter=0;//Raz du compteur de zero
+	      if(OnesCounter==5){//5 '1' detectés
+		  //We construct the byte bit by bit
+		  //Passer la sortie à 1
+		  frame->DestuffedFrame[ParcourFrameOut]=frame->DestuffedFrame[ParcourFrameOut]|(1u<<maskOutput);
+		  //bitCountOut=+1;//Un bit de plus dans le stream(cas spécial)
+		  //maskOutput=+1;
+		  MaskInput=+1;
+		  bitCountIn=+1;
+		  //OnesCounter=0;
+		  //frame->DebuGstuffingFunction=+1;
+	      }
+
+
+	  }
+
+	  else{//Zero
+	      if(OnesCounter==5){//Si 5 1 détectés avant ignorer le zero
+		  //Incrément du masque d'entrée
+		  //Passer la valeur à 1
+		  //frame->DestuffedFrame[ParcourFrameOut]=frame->DestuffedFrame[ParcourFrameOut]|(1u<<maskOutput));
+		  maskOutput=+1;
+		  OnesCounter=0;
+		  zeroCounter=zeroCounter+1;
+
+	      }
+	      else{//Pas 5 '1' détectés traitement normal càd passage de la valeur de sortie à zéro
+		  OnesCounter=0;
+		  frame->DestuffedFrame[ParcourFrameOut]=frame->DestuffedFrame[ParcourFrameOut]&(~(1u<<maskOutput));
+		  MaskInput=+1;
+
+
+	      }
+	      OnesCounter=0;//Raz du compteur
+
+	      maskOutput=+1;
+	      bitCountIn=+1;//Un bit de plus en entrée traité
+	      bitCountOut=+1;//Un bit de plus également en sortie
+
+	  }
+
+
+	  //Sync
+	  if(bitCountOut==7){
+	      bitCountOut=0;
+	      maskOutput=0;
+	      ParcourFrameOut=+1;
+	  }
+	  if(bitCountIn==7)
 	    {
-	      unsigned char Msk=~(1u<<BiTcNt);
-	      CaRNew=(CaRNew&(Msk));
-	      onesCounter=0;//Reset the ones counter
+	      bitCountIn=0;
+	      MaskInput=0;
 
 	    }
-	  BiTcNt++;
-	}
-      BiTcNt=0;
-      frame[CnT]=CaRNew;
-      CnT++;
+
+      }
   }
+
+
 
 
 }
