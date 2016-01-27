@@ -5,3 +5,4 @@ core.*
 .cproject*
 *.cproject
 build/
+/Debug-nxp/

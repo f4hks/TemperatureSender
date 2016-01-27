@@ -31,6 +31,7 @@
 
 #include "board.h"
 #include "FreeRTOS.h"
+#include "semphr.h"
 #include "task.h"
 #include "cmsis.h"
 #include "timers.h"
@@ -38,38 +39,65 @@
 #include "ax25.h"
 #include "string.h"
 #include "tmpSensor.h"
-//#include "lcd.h"
+#include "trcKernelPort.h"
+#include "fsk.h"
 #include "HD44780.h"
+#include "gensinus.h"
 #include <stdlib.h>
 P_AX_25 trame_ax25;
 AX_25_CFG cfgdatas;
 AX_25_SEND_DATA datasenvoye;
 AX_25 tramegenere;
 AX_25_CFG ConfigurationAX25;
+AX_25_SEND_DATA donnes;
+tStatusModulator statMOdulator;
+DigitalData DatasToModulate;
+FSk_param ConfigFsk;
 xQueueHandle xQueue=NULL;
+xQueueHandle TransfertFSK;
 xQueueHandle xLCDQueue=NULL;
 xQueueHandle xMesureQueue=NULL;
 xQueueHandle xCfgMeusureQueue=NULL;
 xQueueHandle xConfigConAX25=NULL;
 xQueueHandle xAX25pipedata=NULL;
 xQueueHandle xAX25datas=NULL;
+xQueueHandle xFskDatas=NULL;
+xQueueHandle xFskModulatorStatus=NULL;
+xQueueHandle xFskCfgQueue=NULL;
+xQueueHandle xSinegne;
 xTaskHandle TskcfgAX25=NULL;
 xTaskHandle TskTemp=NULL;
 xTaskHandle TsksendAX25=NULL;
 xTaskHandle TskGetx25=NULL;
-portBASE_TYPE xStatusADCCFG=0;
+xTaskHandle TskSendToFsk=NULL;
+xTaskHandle TskStatusFSK;
+xTaskHandle TskSineGen1k;
+xTaskHandle TskSineGen2k;
+portBASE_TYPE  xStatusADCCFG=0;
 portBASE_TYPE xStatusADCRESULT=0;
-portBASE_TYPE xStatusAX25CodingTask;
-portBASE_TYPE xStatusAX25sendTask;
-portBASE_TYPE xStatusAX25GetData;
+portBASE_TYPE xStatusAX25CodingTask=0;
+portBASE_TYPE xStatusAX25sendTask=0;
+portBASE_TYPE xStatusAX25GetData=0;
+
+portBASE_TYPE xStatusFSKsendTask=0;
+portBASE_TYPE xStatusFSKCtrl=0;
+portBASE_TYPE xStatusFSkCgfgSend=pdFALSE;
+portBASE_TYPE xStatusModemCtrl=0;
 xLCDMessage tempe;
 xLCDMessage toto= { 0, 0, "LCD TEST" };
-
+xSemaphoreHandle SemAx25Wait;
+xSemaphoreHandle SemAX25cfgLock;//Utiliser pour savoir si la config s'est bien passé
+xSemaphoreHandle SemFSKWait;
+xSemaphoreHandle Sem;//Semaphore global
+bool FSkDone=false;
+bool AX25Done=false;
 struct AMessage
 {
   char ucMessageID;
   char ucData[ 20 ];
 };
+#define DATA_BAUD_RATE 1200
+#define DATA_BAUDRATEMINFREQ 1200
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
@@ -121,7 +149,7 @@ static void EnvoieConfig(void){
   for(;;)
     {
 
-      xTmpSensorCfg cfgMe={44000,false};
+      xTmpSensorCfg cfgMe={44,false};
       if(xCfgMeusureQueue!=NULL){
 	  xStatusADCCFG=xQueueSend(xCfgMeusureQueue,&cfgMe,portMAX_DELAY );
 
@@ -148,8 +176,8 @@ static void xTaskGetTemperatureResults(void)
   char buf[4];
   char Celcius[6];
   portBASE_TYPE xStatus;
-  portBASE_TYPE xStatus1;
-  portBASE_TYPE xStatus2;
+  //portBASE_TYPE xStatus1;
+  //portBASE_TYPE xStatus2;
 
   for(;;){
       //vTaskSuspend(TsksendAX25);//Arret de la tache sendAX25
@@ -168,7 +196,7 @@ static void xTaskGetTemperatureResults(void)
 	      tempe.xLcdCMD=0;
 	      tempe.xLcdMode=0;
 	      //vTaskSuspend(NULL);
-	      Board_UARTPutSTR("Value on ADC : ");
+	      //Board_UARTPutSTR("Value on ADC : ");
 	      snprintf(buf,sizeof(buf),"%d",Result.Temperature);
 	      snprintf(Celcius,sizeof(Celcius),"%f",Result.temp_finale);
 	      Board_UARTPutSTR((char*)buf);
@@ -205,7 +233,7 @@ static void xTaskGetTemperatureResults(void)
 
 	  }
 
-	  vTaskDelay(1000*portTICK_RATE_MS);
+	  vTaskDelay(1000/portTICK_RATE_MS);
 	}
 
   }
@@ -216,90 +244,107 @@ static void xTaskGetTemperatureResults(void)
 static void taskSendParameters(void *pVparam)
 {
   for(;;){
+      //xSemaphoreGive(SemAX25cfgLock);
       //vTaskSuspend(TsksendAX25);
-      cfgdatas.send_id=(unsigned portCHAR*)"F4HKS";
-      portBASE_TYPE xStatusCFGSEND;
-      xStatusCFGSEND=xQueueSend(xConfigConAX25,&cfgdatas,portMAX_DELAY);
-      if(xStatusCFGSEND!=pdTRUE){
-	  //vTaskSuspend(TskTemp);
-	  Board_UARTPutSTR("Fail on taskSendParameters !\n\r");
-	  //vTaskResume(TskTemp);
+      if(SemAX25cfgLock!=NULL){
+	  //
+	  if(xSemaphoreTake(SemAX25cfgLock,portTICK_RATE_MS*10)==pdTRUE)
+	    {
+	      cfgdatas=MakeConfig((const unsigned char*)"F4HKS",1);
+	      portBASE_TYPE xStatusCFGSEND;
+	      //xSemaphoreGive(SemAX25cfgLock);
+	      xStatusCFGSEND=xQueueSend(xConfigConAX25,&cfgdatas,portTICK_RATE_MS*200);
+	      if(xStatusCFGSEND!=pdTRUE){
+		  //vTaskSuspend(TskTemp);
+		  Board_UARTPutSTR("Fail on taskSendParameters !\n\r");
+		  //vTaskResume(TskTemp);
 
+	      }
+	      else{
+		  //vTaskSuspend(TskTemp);
+		  //Board_UARTPutSTR("Success on taskCreateMessage !\n\r");
+		  //vTaskResume(TskTemp);
+
+
+	      }
+	      xSemaphoreGive(SemAX25cfgLock);
+	      //vTaskResume(TsksendAX25);
+	      vTaskSuspend(NULL);
+	      //vTaskDelay(30*portTICK_RATE_MS);
+	    }
       }
-      else{
-	  //vTaskSuspend(TskTemp);
-	  //Board_UARTPutSTR("Success on taskCreateMessage !\n\r");
-	  //vTaskResume(TskTemp);
 
-
-      }
-      //vTaskResume(TsksendAX25);
-      vTaskSuspend(NULL);
-      //vTaskDelay(30*portTICK_RATE_MS);
   }
 }
 
 static void taskCreateMessage(void *pVparam)
 {
   for(;;){
+      if(SemAx25Wait!=NULL){
+	  xSemaphoreGive(SemAx25Wait);
+	  if(xSemaphoreTake(SemAx25Wait,portTICK_RATE_MS*10)==pdTRUE){
+	      ConfigurationAX25=MakeConfig((const unsigned char*)"F4HKS",1);
+	      portBASE_TYPE xStatusCFGSEND;
+	      xStatusCFGSEND=xQueueSend(xConfigConAX25,&ConfigurationAX25,portTICK_RATE_MS*200);
+	      if(xStatusCFGSEND!=pdTRUE){
+		  //vTaskSuspend(TskTemp);
+		  Board_UARTPutSTR("Fail on taskSendParameters !\n\r");
+		  //vTaskResume(TskTemp);
 
-      //vTaskSuspend(TskTemp);
-      //vTaskSuspend(TskGetx25);
-      cfgdatas.send_id=(unsigned portCHAR*)"F4HKS";
-      portBASE_TYPE xStatusCFGSEND;
-      xStatusCFGSEND=xQueueSend(xConfigConAX25,&cfgdatas,portMAX_DELAY);
-      if(xStatusCFGSEND!=pdTRUE){
-	  //vTaskSuspend(TskTemp);
-	  Board_UARTPutSTR("Fail on taskSendParameters !\n\r");
-	  //vTaskResume(TskTemp);
+	      }
 
+	      datasenvoye=MakeFrame((const unsigned portCHAR*)"The quick brown fox jumps over the lazy dog ",(const unsigned portCHAR*)"WIDE");
+	      xStatusAX25CodingTask=xQueueSend(xAX25datas,&datasenvoye,portTICK_RATE_MS*200);
+	      if(xStatusAX25CodingTask!=pdPASS){
+		  Board_UARTPutSTR("Erreur !\n\r");
+	      }
+	      xSemaphoreGive(SemAx25Wait);//Rends le semaphore
+	  }
       }
-      else{
-	  //vTaskSuspend(TskTemp);
-	  //Board_UARTPutSTR("Success on taskCreateMessage !\n\r");
-	  //vTaskResume(TskTemp);
-
-
-      }
-      datasenvoye.dest_id=(unsigned portCHAR*)"WIDE";
-      datasenvoye.message=(unsigned portCHAR*)"The quick brown fox jumps over the lazy dog ";
-      xStatusAX25CodingTask=xQueueSend(xAX25datas,&datasenvoye,portMAX_DELAY);
-      if(xStatusAX25CodingTask!=pdPASS){
-	  Board_UARTPutSTR("Erreur !\n\r");
-      }
-      else
-
-	{
-	  //vTaskSuspend(TskTemp);
-	  //Board_UARTPutSTR("Success on taskCreateMessage !\n\r");
-
-
-	}
-
-      //cfgdatas.send_id="F4HKS";
-
-      //vTaskResume(TskTemp);
-      //vTaskResume(TskGetx25);
-      //vPortFree(trame_ax25);//important
-
-
-
-
-
   }
+
 }
+
+
+
 static void taskGetMessages(void *pVparam){
   for(;;){
-      xStatusAX25GetData=xQueueReceive(xAX25pipedata,&tramegenere,portMAX_DELAY);
-      if(xStatusAX25GetData!=pdTRUE){
-	  Board_UARTPutSTR("Fail on get ax 25 \n\r");
+
+      if(SemAx25Wait!=NULL){
+
+	  if(xSemaphoreTake(SemAx25Wait,portTICK_RATE_MS*100)==pdTRUE){
+
+	      xStatusAX25GetData=xQueueReceive(xAX25pipedata,&tramegenere,portTICK_RATE_MS*200);
+	      if(xStatusAX25GetData!=pdTRUE){
+		  Board_UARTPutSTR("Fail on get ax 25 \n\r");
+	      }
+	      else{
+		  if(strlen((char*)tramegenere.fullmessage)!=0)
+		    {
+		      Board_UARTPutSTR("Trame : ");
+		      Board_UARTPutSTR((char*)tramegenere.fullmessage);
+		      Board_UARTPutSTR("\r\r");
+		      AX25Done=true;
+		      //xSemaphoreGive(SemAx25Wait);
+
+		    }
+
+	      }
+
+	      portBASE_TYPE stat=xQueueSend(TransfertFSK,&tramegenere.fullmessage,portTICK_RATE_MS*200);
+	      if(stat!=pdTRUE){
+		  Board_UARTPutSTR("Fail on get ax 25 \n\r");
+	      }
+
+
+
+	  }
+
+	  xSemaphoreGive(SemAx25Wait);
+	  //vTaskDelay(3000*portTICK_RATE_MS);
       }
-      else{
-	  Board_UARTPutSTR("Trame : ");
-	  Board_UARTPutSTR((char*)tramegenere.fullmessage);
-	  Board_UARTPutSTR("\r\r");
-      }
-      vTaskDelay(1000/portTICK_RATE_MS);
+
+
 
 
 
@@ -366,6 +411,7 @@ static void vAX25CodingTask(void *pvParameters){
 }
 #endif
 /* LED1 toggle thread */
+#if 0
 static void vLEDTask1(void *pvParameters) {
   bool LedState = false;
   //portTickType xLastWakeTime;
@@ -479,6 +525,120 @@ static void VLEDTask4(void *pvParameters){
 
   }
 }
+#endif
+/*!
+ * \fn vTaskSendToFsk
+ * \brief Envoi de la trame vers le modulateur FSK
+ */
+static void vTaskSendToFsk(void *pVparameters)
+{
+  unsigned portCHAR* test=0x00;
+  for(;;){
+      if(SemAx25Wait!=NULL)
+	{
+	  if(xSemaphoreTake(SemAx25Wait,portTICK_RATE_MS*400)==pdTRUE){
+	      portBASE_TYPE StatuFSK=0;
+	      test=0x00;
+	      if(AX25Done==true){
+		  ConfigFsk =InitConfigurationFSK(TWO_FSK,DATA_BAUD_RATE,DATA_BAUDRATEMINFREQ,(long)1000);
+		  xStatusFSkCgfgSend=xQueueSend(xFskCfgQueue,&ConfigFsk,portTICK_RATE_MS*1000);
+		  if(xStatusFSkCgfgSend!=pdTRUE){
+		      Board_UARTPutSTR("Error in FSK cfg ...\n\r");
+		  }
+		  else{
+
+		      Board_UARTPutSTR("Transmit in progress ...\n\r");
+
+		  }
+		  StatuFSK=xQueueReceive(TransfertFSK,&test,portTICK_RATE_MS*200);
+		  if(StatuFSK!=pdTRUE){
+		      Board_UARTPutSTR("Fail on get ax 25 \n\r");
+		  }
+		  DatasToModulate=InitDigitalData(test);
+		  xStatusFSKsendTask=xQueueSend(xFskDatas,&DatasToModulate,portTICK_RATE_MS*200);
+		  if(xStatusFSKsendTask!=pdTRUE){
+		      Board_UARTPutSTR("Error in FSK transmit ...\n\r");
+		  }
+		  else{
+
+		      Board_UARTPutSTR("Transmit in progress ...\n\r");
+
+		  }
+
+		  FSkDone=true;
+	      }
+	  }
+	  else
+	    {
+	      Board_UARTPutSTR("X25 task is not finished we can't now encode ! \n\r");
+	    }
+	  xSemaphoreGive(SemAx25Wait);
+
+	}
+      vTaskDelay(3000*portTICK_RATE_MS);
+  }
+}
+/*!
+ * \fn StatusFSKGet
+ * \brief A task that permit to know the status of the transmission for the other tasks
+ */
+static void taskStatusFSKGet(void *Pvparam){
+  for(;;){
+	xStatusModemCtrl=xQueueReceive(xFskModulatorStatus,&statMOdulator,portTICK_RATE_MS*300);
+	if(xStatusModemCtrl!=pdFALSE){
+	    if(statMOdulator.AllTransmit==true){
+		//Unblock the semaphore
+		xSemaphoreGive(SemAx25Wait);
+	    }
+	}
+  }
+}
+
+//}
+static void Singene1k(void *pVparameters){
+  for(;;){
+      //vTaskDelay(3000/portTICK_RATE_MS);
+
+      xFrequencyGen FreqParam;
+      FreqParam.Frequency=1000;
+      FreqParam.TX=true;
+      portBASE_TYPE xStat=xQueueSend(xSinegne,&FreqParam,portMAX_DELAY);
+      if(xStat!=pdTRUE){
+	  Board_UARTPutSTR("Error\n\r");
+      }
+      else{
+	  //StartSignalGen();
+	  vTaskSuspend(NULL);
+      }
+      //
+      //vTaskDelay(3000/portTICK_RATE_MS);
+      //
+      //StopSignalGen();
+
+  }
+}
+static void Singene2k(void *pVparameters){
+  for(;;){
+      vTaskDelay(3000/portTICK_RATE_MS);
+      xFrequencyGen FreqParam;
+      FreqParam.Frequency=1200;
+      FreqParam.TX=true;
+      portBASE_TYPE xStat=xQueueSend(xSinegne,&FreqParam,portMAX_DELAY);
+      if(xStat!=pdTRUE){
+	  Board_UARTPutSTR("Error\n\r");
+      }
+      else{
+	  //StartSignalGen();
+	  //vTaskSuspend(NULL);
+      }
+
+      //
+      //StopSignalGen();
+      //vTaskSuspend(NULL);
+
+  }
+
+}
 /* UART (or output) thread */
 #if 0
 static void vUARTTask(void *pvParameters) {
@@ -506,20 +666,30 @@ int main(void)
 {
   //Hardware setup function
   prvSetupHardware();
+  Sem=xSemaphoreCreateMutex();
+  SemAX25cfgLock=xSemLockAx25Cfg();
+  SemAx25Wait=xSemLockX25();//Pour attendre la fin de l'encodageX25
   //Mise en place des files de messages
   xLCDQueue = xStartLCDTask();
 
   xMesureQueue = xStartTempTask();
-
+  xFskCfgQueue=xStartConfigFSK();
   xCfgMeusureQueue=xConfigADC();
+  //Création du sémaphore
 
+  SemFSKWait=xSemaphoreCreateMutex();
   //xQueue=xQueueCreate(2,sizeof(P_AX_25));
-  ConfigurationAX25=MakeConfig((const unsigned char*)"F4HKS",1);
-  xConfigConAX25=xStartAx25Cfg();
+  ConfigFsk=InitConfigurationFSK(2,1200,1200,1000);
+  xConfigConAX25=xStartAx25Cfg(&SemAX25cfgLock);
   xAX25pipedata=xStartAX25pipe();
   xAX25datas=xStartAX25task();
-  uint32_t Clk=SystemCoreClock;
-  uint32_t dividerClk=Chip_Clock_GetCPUClockDiv();
+  //xSinegne=InitGenQueue();
+  xFskDatas=xStartQueueFSK();
+  xFskModulatorStatus=xStartStatusQueueFSK();
+
+  TransfertFSK=xQueueCreate(1,sizeof(unsigned portCHAR*));
+  //uint32_t Clk=SystemCoreClock;
+  //uint32_t dividerClk=Chip_Clock_GetCPUClockDiv();
 
   xTaskCreate(EnvoieConfig,(const signed char *) "Envoie Config",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
   /*Get sensor value*/
@@ -540,11 +710,15 @@ int main(void)
   //xTaskCreate(vUARTTask, (signed char *) "vTaskUart",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
 
 
-  //xTaskCreate(taskSendParameters,(const signed char *) "vAx25",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskcfgAX25);
+  xTaskCreate(taskSendParameters,(const signed char *) "vAx25",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskcfgAX25);
 
   xTaskCreate(taskCreateMessage,(const signed char *) "vAx25",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TsksendAX25);
-
   xTaskCreate(taskGetMessages,(const signed char *) "vAx25Get",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskGetx25);
+  xTaskCreate(taskStatusFSKGet,(const signed portCHAR*)"TaskGETFSKStatus",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskStatusFSK);
+  xTaskCreate(vTaskSendToFsk,(const signed char *)"VtaskSendFSK",512,NULL,(tskIDLE_PRIORITY+1UL),&TskSendToFsk);
+  //xTaskCreate(Singene1k,(const signed char *) "sine1k",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskSineGen1k);
+  //xTaskCreate(Singene2k,(const signed char *) "sine2k",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskSineGen2k);
+
   /* Start the scheduler */
   vTaskStartScheduler();
 

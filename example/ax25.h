@@ -58,9 +58,13 @@ typedef struct {
 }__attribute__((__packed__, aligned(2))) AX25_LOW_LEVEL_PREP;
 typedef AX_25 *P_AX_25;
 xQueueHandle xStartAX25task(void);
-xQueueHandle xStartAx25Cfg(void);
+xQueueHandle xStartAx25Cfg(xSemaphoreHandle *Sem);
 xQueueHandle xStartAX25pipe(void);
-
+xSemaphoreHandle xSemLockX25(void);
+xSemaphoreHandle xSemLockAx25Cfg(void);
+xSemaphoreHandle GetSemStatusX25cfg(void);
+xSemaphoreHandle GetSemStatusX25Enc(void);
+xSemaphoreHandle GetSemStatusX25Send(void);
 void shiftmessageleft(unsigned char *p_Message );
 void shiftmessageright(unsigned char *p_Message );
 void stuffingframe(P_AX_25 *ax25_frame);

@@ -143,7 +143,7 @@ void prVsetupADC(xTmpSensorCfg config){
       if (Burst_Mode_Flag) {
 	  Chip_ADC_SetBurstCmd(_LPC_ADC_ID, DISABLE);
       }
-
+      vTaskSuspend(NULL);
   }
 }
 
