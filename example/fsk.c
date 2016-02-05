@@ -43,6 +43,7 @@ volatile unsigned int Bitwasconverted=0;
 volatile unsigned long countParcours=0;
 volatile unsigned int digitalToFsk=0;
 volatile unsigned int MaxBitsVal;
+volatile unsigned int InterruptCnt;
 uint32_t Timer0Clk;
 uint32_t Clk;
 uint16_t MaxFreqzSample;

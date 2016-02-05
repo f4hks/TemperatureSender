@@ -11,12 +11,18 @@
 typedef struct
 {
 	unsigned char *message;
+	unsigned char *messageShiftedBeforeTX;
+	unsigned char *messageBitStuffedBeforeTX;
 	unsigned char *dest_id;
 	unsigned char *send_id;
 	unsigned char *crc;
 	unsigned char crc_low;
 	unsigned char crc_hight;
+	unsigned char *messageWithAX25Flags;
+	unsigned char *messageWithPreambleSync;
+	unsigned char *messageFromAX25func;
 	unsigned char *fullmessage;
+	unsigned char *NrziChaine;
 	unsigned char *endmessage;
 	unsigned char *flag;
 	unsigned char *stuffedFrame;
@@ -25,6 +31,14 @@ typedef struct
 	unsigned int NexTbitValue;
 	unsigned int BitPosINframe;
 	unsigned int BitPosOUTframe;
+	unsigned portSHORT MessSize;
+	unsigned portSHORT MessSizeWithNoCRC;
+	unsigned portSHORT MessSizeWithNoPID;
+	unsigned portSHORT MessSizeWithNoPayload;
+	unsigned portSHORT MessSizeWithNoStartAndStopFlags;
+	unsigned portSHORT MessSizeWithNoPreamble;
+	unsigned portBASE_TYPE ulenght_destination;
+	unsigned portBASE_TYPE ulenght_sender;
 	unsigned int DebuGstuffingFunction;
 	unsigned char *UndecodedMessFromDemod;
 	unsigned char *DestuffedFrame;
@@ -56,6 +70,26 @@ typedef struct {
 	      unsigned int MaskOut;
 
 }__attribute__((__packed__, aligned(2))) AX25_LOW_LEVEL_PREP;
+
+typedef enum {
+  NOPROTO=0x03,
+
+  POLLMODEON=0x10,
+  POLLMODEOFF=0x00,
+  UIFRAME_POLL_MODE_OFF=NOPROTO^POLLMODEOFF,
+  UIFRAME_POLL_MODE_ON=NOPROTO^POLLMODEON
+
+}AX25_PID_CTRL;
+typedef enum {
+  EIGHT_BIT_MASK=0xff,
+  GET_HIGHT_BITS=4,
+  CCIT_INIT_FCS_CALC=0xffff
+
+}AX25_CRC_CALCS;
+typedef enum {
+  MAX_AX25_FLAGS=4,
+  MAX_SYNC_FLAGS=16
+}AX25_FLAGS_SEC;
 typedef AX_25 *P_AX_25;
 xQueueHandle xStartAX25task(void);
 xQueueHandle xStartAx25Cfg(xSemaphoreHandle *Sem);
