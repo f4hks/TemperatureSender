@@ -91,6 +91,9 @@ typedef enum {
   MAX_SYNC_FLAGS=16
 }AX25_FLAGS_SEC;
 typedef AX_25 *P_AX_25;
+xTimerHandle CreateAX25Timer(unsigned int Time);
+portBASE_TYPE StartX25Wait(xTimerHandle Timer);
+portBASE_TYPE StopX25wait(xTimerHandle Timer);
 xQueueHandle xStartAX25task(void);
 xQueueHandle xStartAx25Cfg(xSemaphoreHandle *Sem);
 xQueueHandle xStartAX25pipe(void);

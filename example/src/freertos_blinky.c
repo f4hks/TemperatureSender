@@ -73,6 +73,9 @@ xTaskHandle TskSendToFsk=NULL;
 xTaskHandle TskStatusFSK;
 xTaskHandle TskSineGen1k;
 xTaskHandle TskSineGen2k;
+xTimerHandle SendDataTaskTimer[2];
+xTimerHandle TimerAx25Delay;
+portBASE_TYPE TimerFini[2];
 portBASE_TYPE  xStatusADCCFG=0;
 portBASE_TYPE xStatusADCRESULT=0;
 portBASE_TYPE xStatusAX25CodingTask=0;
@@ -105,24 +108,7 @@ xTimerHandle MonTimer;
 /*****************************************************************************
  * Public types/enumerations/variables
  ****************************************************************************/
-#if 0
-const unsigned short sine[256]={0x8000,0x8647,0x8c8b,0x92c7,0x98f8,0x9f19,0xa527,0xab1f,
-    0xb0fb,0xb6b9,0xbc56,0xc1cd,0xc71c,0xcc3f,0xd133,0xd5f5,
-    0xda82,0xded7,0xe2f1,0xe6cf,0xea6d,0xedc9,0xf0e2,0xf3b5,
-    0xf641,0xf884,0xfa7c,0xfc29,0xfd89,0xfe9c,0xff61,0xffd8,
-    0xffff,0xffd8,0xff61,0xfe9c,0xfd89,0xfc29,0xfa7c,0xf884,
-    0xf641,0xf3b5,0xf0e2,0xedc9,0xea6d,0xe6cf,0xe2f1,0xded7,
-    0xda82,0xd5f5,0xd133,0xcc3f,0xc71c,0xc1cd,0xbc56,0xb6b9,
-    0xb0fb,0xab1f,0xa527,0x9f19,0x98f8,0x92c7,0x8c8b,0x8647,
-    0x8000,0x79b8,0x7374,0x6d38,0x6707,0x60e6,0x5ad8,0x54e0,
-    0x4f04,0x4946,0x43a9,0x3e32,0x38e3,0x33c0,0x2ecc,0x2a0a,
-    0x257d,0x2128,0x1d0e,0x1930,0x1592,0x1236,0xf1d,0xc4a,
-    0x9be,0x77b,0x583,0x3d6,0x276,0x163,0x9e,0x27,
-    0x0,0x27,0x9e,0x163,0x276,0x3d6,0x583,0x77b,
-    0x9be,0xc4a,0xf1d,0x1236,0x1592,0x1930,0x1d0e,0x2128,
-    0x257d,0x2a0a,0x2ecc,0x33c0,0x38e3,0x3e32,0x43a9,0x4946,
-    0x4f04,0x54e0,0x5ad8,0x60e6,0x6707,0x6d38,0x7374,0x79b8};
-#endif
+
 /*****************************************************************************
  * Private functions
  ****************************************************************************/
@@ -340,7 +326,7 @@ static void taskGetMessages(void *pVparam){
 
 	  }
 
-	  xSemaphoreGive(SemAx25Wait);
+	  //xSemaphoreGive(SemAx25Wait);
 	  //vTaskDelay(3000*portTICK_RATE_MS);
       }
 
@@ -572,7 +558,7 @@ static void vTaskSendToFsk(void *pVparameters)
 	    {
 	      Board_UARTPutSTR("X25 task is not finished we can't now encode ! \n\r");
 	    }
-	  xSemaphoreGive(SemAx25Wait);
+
 
 	}
       vTaskDelay(3000*portTICK_RATE_MS);
@@ -584,13 +570,13 @@ static void vTaskSendToFsk(void *pVparameters)
  */
 static void taskStatusFSKGet(void *Pvparam){
   for(;;){
-	xStatusModemCtrl=xQueueReceive(xFskModulatorStatus,&statMOdulator,portTICK_RATE_MS*300);
-	if(xStatusModemCtrl!=pdFALSE){
-	    if(statMOdulator.AllTransmit==true){
-		//Unblock the semaphore
-		xSemaphoreGive(SemAx25Wait);
-	    }
-	}
+      xStatusModemCtrl=xQueueReceive(xFskModulatorStatus,&statMOdulator,portTICK_RATE_MS*300);
+      if(xStatusModemCtrl!=pdFALSE){
+	  if(statMOdulator.AllTransmit==true){
+	      //Unblock the semaphore
+	      xSemaphoreGive(SemAx25Wait);
+	  }
+      }
   }
 }
 
@@ -639,6 +625,28 @@ static void Singene2k(void *pVparameters){
   }
 
 }
+void vTimerCallback1(xTimerHandle Timer){
+  portBASE_TYPE indexTimer;
+  const portBASE_TYPE comptageMAx=60;
+  configASSERT(Timer);
+  indexTimer=(portBASE_TYPE)pvTimerGetTimerID(Timer);
+  TimerFini[indexTimer]+=1;
+  if(TimerFini[indexTimer]==comptageMAx){
+      xTimerStop(Timer,0);
+      xSemaphoreGive(SemAx25Wait);
+  }
+}
+void vTimerCallback2(xTimerHandle Timer){
+  portBASE_TYPE indexTimer;
+  const portBASE_TYPE comptageMAx=30;
+  configASSERT(Timer);
+  indexTimer=(portBASE_TYPE)pvTimerGetTimerID(Timer);
+  TimerFini[indexTimer]+=1;
+  if(TimerFini[indexTimer]==comptageMAx){
+      xSemaphoreGive(SemAx25Wait);
+      xTimerStop(Timer,0);
+  }
+}
 /* UART (or output) thread */
 #if 0
 static void vUARTTask(void *pvParameters) {
@@ -686,7 +694,7 @@ int main(void)
   //xSinegne=InitGenQueue();
   xFskDatas=xStartQueueFSK();
   xFskModulatorStatus=xStartStatusQueueFSK();
-
+  TimerAx25Delay=CreateAX25Timer(30000);
   TransfertFSK=xQueueCreate(1,sizeof(unsigned portCHAR*));
   //uint32_t Clk=SystemCoreClock;
   //uint32_t dividerClk=Chip_Clock_GetCPUClockDiv();
@@ -710,14 +718,15 @@ int main(void)
   //xTaskCreate(vUARTTask, (signed char *) "vTaskUart",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
 
 
-  xTaskCreate(taskSendParameters,(const signed char *) "vAx25",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskcfgAX25);
+  xTaskCreate(taskSendParameters,(const signed char *) "vAx25",64, NULL, (tskIDLE_PRIORITY + 1UL),&TskcfgAX25);
 
-  xTaskCreate(taskCreateMessage,(const signed char *) "vAx25",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TsksendAX25);
+  xTaskCreate(taskCreateMessage,(const signed char *) "vAx25",2048, NULL, (tskIDLE_PRIORITY + 1UL),&TsksendAX25);
   xTaskCreate(taskGetMessages,(const signed char *) "vAx25Get",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskGetx25);
-  xTaskCreate(taskStatusFSKGet,(const signed portCHAR*)"TaskGETFSKStatus",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskStatusFSK);
+  xTaskCreate(taskStatusFSKGet,(const signed portCHAR*)"TaskGETFSKStatus",32, NULL, (tskIDLE_PRIORITY + 1UL),&TskStatusFSK);
   xTaskCreate(vTaskSendToFsk,(const signed char *)"VtaskSendFSK",512,NULL,(tskIDLE_PRIORITY+1UL),&TskSendToFsk);
   //xTaskCreate(Singene1k,(const signed char *) "sine1k",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskSineGen1k);
   //xTaskCreate(Singene2k,(const signed char *) "sine2k",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskSineGen2k);
+  /*Creating timer */
 
   /* Start the scheduler */
   vTaskStartScheduler();

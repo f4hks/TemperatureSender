@@ -146,9 +146,6 @@ void vTskCfgFskMod(void *pVparameters){
 	  vTaskSuspend(NULL);
 
       }
-      //vTaskDelay(100/portTICK_RATE_MS);
-
-
   }
 }
 
@@ -270,6 +267,7 @@ void vTaskEncodeDataStream(void *pvParameters){
 	  //bitConverted=0;
 	  StopModem();
 	  StopSignalGen();
+
       }
   }
 

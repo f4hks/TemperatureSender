@@ -10,13 +10,13 @@
  *  @todo : Add calculation of the crc with hardware peripherial(more speed)
  */
 #include "FreeRTOS.h"
-
 #include <string.h>
 #include <stdlib.h>
 #include <crc.h>
 #include "queue.h"
 #include "task.h"
 #include "semphr.h"
+#include "timers.h"
 #include "ax25.h"
 #define SizeQueue  1
 xQueueHandle xAX25Queue;
@@ -25,6 +25,7 @@ xTaskHandle Ax25Encode;
 xTaskHandle Ax25Send;
 xQueueHandle xAX25Cfg;
 xQueueHandle xAX25pipe;
+xTimerHandle TimerAx25;
 /*This semapahore are necessary to execute tasks in this order Configuration -> encoding-> Sendto main task*/
 xSemaphoreHandle Stage1;//Configuration
 xSemaphoreHandle Stage2;//Encoding
@@ -41,7 +42,29 @@ static void vAX25send(void *pvParameters);
 static void Nrzi(unsigned char *Mess,unsigned char *outMess);
 static void InitTxInsertion(unsigned char *Mess,unsigned int TXwaitReapeat,unsigned char *Out,unsigned int *PosiInit);
 static void AddFlags(unsigned char *Mess,unsigned int FlagNumber,unsigned int *PosiInit);
+static void AddAdresses(AX_25 *frame,AX_25_SEND_DATA *datas,AX_25_CFG *cfg_ax25);
+static void AddMessage(AX_25 *frame,AX_25_SEND_DATA *datas);
 static unsigned char Bit_Reverse( unsigned char x );
+void vTimerX25callback(xTimerHandle Timer);
+/*!
+ * \fn CreateAX25Timer
+ * \brief Create the timer for this module
+ * This function create a timer , this timer will be used for task synchronisation
+ * */
+xTimerHandle CreateAX25Timer(unsigned int Time){
+  return xTimerCreate((const signed char*)"TimerX25",1000*Time,pdFALSE,(void*)2,vTimerX25callback);
+
+}
+/*!
+ * \fn StartX25Wait
+ * \brief Start AX25 timer for task sync
+ */
+portBASE_TYPE StartX25Wait(xTimerHandle Timer){
+  return xTimerStart(Timer,0);
+}
+portBASE_TYPE StopX25wait(xTimerHandle Timer){
+  return xTimerStop(Timer,0);
+}
 /*!
  * \fn MakeFrame
  * \brief Crée la structure avec les messages
@@ -97,7 +120,7 @@ xQueueHandle xStartAX25pipe(void){
  */
 xSemaphoreHandle xSemLockX25(void){
   Stage3=xSemaphoreCreateMutex();
-  //xSemaphoreTake(Stage3,portMAX_DELAY);
+  xSemaphoreTake(Stage3,portMAX_DELAY);
   return  Stage3;
 
 }
@@ -173,8 +196,10 @@ void vAX25taskBase(void *pvParameters){
     {//Verifier que l'on a passé l'étape 1 avant
       if(Sems!=NULL){//Au cas où
 	  //xSemaphoreGive(Sems);
+
 	  if(xSemaphoreTake(Sems,portTICK_RATE_MS*10==pdTRUE))
 	    {
+
 	      portBASE_TYPE  xSendDataStat;
 	      portBASE_TYPE  xGetDataAX25stat;
 	      portBASE_TYPE  xGetCfgStat;
@@ -190,6 +215,7 @@ void vAX25taskBase(void *pvParameters){
 	      //Attente de données
 	      //Copie des parametres
 	      taskENTER_CRITICAL();
+#if 0
 	      trame.endmessage=NULL;
 	      trame.send_id=NULL;
 	      //trame.send_id=pvPortMalloc(10*sizeof(unsigned portCHAR));
@@ -200,14 +226,16 @@ void vAX25taskBase(void *pvParameters){
 	      trame.message=pvPortCalloc(strlen((char*)datas.message),sizeof(unsigned portCHAR));
 	      trame.crc_hight=0xff;
 	      trame.crc_low=0xff;
+	      trame.NrziChaine=NULL;
 	      lenght_sendid=strlen((portCHAR*)cfg_ax25.send_id);
 	      lenght_dest_id=strlen((portCHAR*)datas.dest_id);
-	      strncat((portCHAR*)trame.dest_id,(portCHAR*)datas.dest_id,strlen((portCHAR*)datas.dest_id));
-	      strncat((portCHAR*)trame.send_id,(portCHAR*)cfg_ax25.send_id,strlen((portCHAR*)cfg_ax25.send_id));
+
+
 	      //strncat((portCHAR*)trame.message,(portCHAR*)datas.message,strlen((portCHAR*)datas.message));
 	      //trame.message[0]='~';
 	      //trame.message[1]='~';
-	      strncat((portCHAR*)trame.message,(portCHAR*)trame.send_id,strlen((portCHAR*)trame.send_id));
+	      //strncat((portCHAR*)trame.message,(portCHAR*)trame.send_id,strlen((portCHAR*)trame.send_id));
+	      //vPortFree(trame.send_id);
 	      size=strlen((portCHAR*)trame.message);
 	      if(lenght_sendid<AX25_ADD_MAX_Size){
 		  cntsendid=AX25_ADD_MAX_Size-(AX25_ADD_MAX_Size-lenght_sendid);
@@ -217,6 +245,10 @@ void vAX25taskBase(void *pvParameters){
 	      }
 	      size=strlen((portCHAR*)trame.message);
 	      strncat((portCHAR*)trame.message,(portCHAR*)trame.dest_id,strlen((portCHAR*)trame.dest_id));
+	      vPortFree(trame.send_id);
+	      vPortFree(trame.dest_id);
+	      trame.send_id=NULL;
+	      trame.dest_id=NULL;
 	      size=strlen((portCHAR*)trame.message);
 	      if(lenght_dest_id<AX25_ADD_MAX_Size){
 		  cntdestid=AX25_ADD_MAX_Size-(AX25_ADD_MAX_Size-lenght_dest_id);
@@ -225,7 +257,11 @@ void vAX25taskBase(void *pvParameters){
 		      trame.message[size++]=' ';
 		    }
 	      }
+#endif
+	      AddAdresses(&trame,&datas,&cfg_ax25);
+	      AddMessage(&trame,&datas);
 	      /*Insertion du PID */
+#if 0
 	      size=strlen((portCHAR*)trame.message);
 	      strncat((portCHAR*)trame.message,(portCHAR*)datas.message,strlen((portCHAR*)datas.message));
 	      size=strlen((portCHAR*)trame.message);
@@ -252,23 +288,26 @@ void vAX25taskBase(void *pvParameters){
 	      ZeroInsert(&trame);
 	      size=strlen((portCHAR*)trame.stuffedFrame);
 	      trame.fullmessage=NULL;
-	      trame.fullmessage=pvPortCalloc(size+30,sizeof(unsigned portCHAR));
+	      trame.fullmessage=pvPortCalloc(size+15,sizeof(unsigned portCHAR));
 	      //shiftmessageright(trame.stuffedFrame);
 	      //Mise en paquet finale
+#endif
 	      posi=0;
 	      AddFlags((unsigned char*)trame.fullmessage,5,&posi);
 	      strncat((portCHAR*)trame.fullmessage,(portCHAR*)trame.stuffedFrame,size);
+	      vPortFree(trame.stuffedFrame);
+	      trame.stuffedFrame=NULL;
 	      size_fullmessage=strlen((portCHAR*)trame.fullmessage);
 	      if(trame.NrziChaine==NULL){
-		  trame.NrziChaine=(unsigned portCHAR*)pvPortMalloc(sizeof(unsigned portCHAR));
+		  trame.NrziChaine=(unsigned portCHAR*)pvPortMalloc(sizeof(unsigned portCHAR)*size_fullmessage);
 	      }
 	      unsigned int taille_test=strlen((char*)trame.NrziChaine);
 	      posi=size_fullmessage;
 	      AddFlags(trame.fullmessage,5,&posi);
-	      Nrzi(trame.fullmessage,trame.NrziChaine);
+	      //Nrzi(trame.fullmessage,trame.NrziChaine);
 	      posi=strlen((char*)trame.fullmessage);
 	      if(trame.endmessage==NULL){
-		  trame.endmessage=pvPortCalloc(strlen((char*)trame.fullmessage)+5,sizeof(unsigned char));
+		  trame.endmessage=(unsigned char*)malloc(posi*sizeof(unsigned char));
 	      }
 	      //Ajout des flags de fin
 	      InitTxInsertion(trame.fullmessage,5,trame.endmessage,&posi);
@@ -278,11 +317,11 @@ void vAX25taskBase(void *pvParameters){
 
 	      if(xSendDataStat!=pdTRUE)
 		{
-		  vPortFree(trame.dest_id);
-		  vPortFree(trame.send_id);
+		  //vPortFree(trame.dest_id);
+		  //vPortFree(trame.send_id);
 		  vPortFree(trame.message);
 		  vPortFree(trame.fullmessage);
-		  vPortFree(trame.stuffedFrame);
+		  //vPortFree(trame.stuffedFrame);
 		  vPortFree(trame.endmessage);
 		  trame.message=NULL;
 		  trame.dest_id=NULL;
@@ -292,8 +331,8 @@ void vAX25taskBase(void *pvParameters){
 		  trame.endmessage=NULL;
 		}
 	      else{
-		  vPortFree(trame.dest_id);
-		  vPortFree(trame.send_id);
+		  //vPortFree(trame.dest_id);
+		  //vPortFree(trame.send_id);
 		  vPortFree(trame.message);
 		  vPortFree(trame.fullmessage);
 		  vPortFree(trame.stuffedFrame);
@@ -466,8 +505,8 @@ void Nrzi(unsigned char *Mess,unsigned char *outMess){
 	  if(Car&(1u<<CntBits))//Si 1
 	    {
 
-		  Car=Car;
-		  wasZero=false;
+	      Car=Car;
+	      wasZero=false;
 
 	    }
 	  else{//à zero
@@ -483,18 +522,15 @@ void Nrzi(unsigned char *Mess,unsigned char *outMess){
 	  }
 
 
+
 	}
       CntBits=0;
-      *TmpPtr=(unsigned char)Car;
+      outMess[Cnt]=(unsigned char)Car;
       //Mess=Mess+1;
-      TmpPtr=TmpPtr+1;
+      //TmpPtr=TmpPtr+1;
 
     }
-  outMess[0]='T';
-  outMess[1]='O';
-  outMess[2]='T';
-  outMess[3]='O';
-  outMess[4]='\0';
+  outMess[Lenght]='\0';
   TmpPtr[Cnt]='\0';
   //vPortFree(TmpPtr);
   TmpPtr=NULL;
@@ -654,37 +690,55 @@ void AddAdresses(AX_25 *frame,AX_25_SEND_DATA *datas,AX_25_CFG *cfg_ax25){
   unsigned portBASE_TYPE ullenght_sendid,ullenght_destid;
   unsigned portBASE_TYPE ulcntdestid=0;
   unsigned portBASE_TYPE ulcntsendid=0;
+  unsigned int counter=0;
+  unsigned int CounterFrameOut=0;
   frame->send_id=NULL;
-  frame->send_id=(unsigned portCHAR*)pvPortMalloc(10*sizeof(unsigned portCHAR));
+  frame->send_id=pvPortCalloc(10,sizeof(unsigned portCHAR));
   //frame->send_id=pvPortCalloc(10,sizeof(unsigned portCHAR));
   frame->dest_id=NULL;
   if(frame->dest_id==NULL){
-      frame->dest_id=(unsigned portCHAR*)pvPortMalloc(10*sizeof(unsigned portCHAR));
+      frame->dest_id=(unsigned portCHAR*)pvPortCalloc(10,sizeof(unsigned portCHAR));
   }
   ullenght_sendid=strlen((portCHAR*)cfg_ax25->send_id);
   ullenght_destid=strlen((portCHAR*)datas->dest_id);
   frame->MessSize=strlen((portCHAR*)datas->message);
 
-  strncat((portCHAR*)frame->send_id,(portCHAR*)cfg_ax25->send_id,ullenght_sendid);
-  strncat((portCHAR*)frame->dest_id,(portCHAR*)datas->dest_id,ullenght_destid);
+  strcpy((portCHAR*)frame->send_id,(portCHAR*)cfg_ax25->send_id);
+  strcpy((portCHAR*)frame->dest_id,(portCHAR*)datas->dest_id);
   frame->ulenght_destination=ullenght_destid;
   frame->ulenght_sender=ullenght_sendid;
   frame->message=NULL;
-  frame->message=(unsigned portCHAR*)pvPortMalloc(strlen((portCHAR*)datas->message)+(2*(unsigned int)AX25_ADD_MAX_Size)+1*sizeof(unsigned portCHAR));
-  strncat((portCHAR*)frame->message,(portCHAR*)frame->send_id,frame->ulenght_sender);
+  frame->message=pvPortCalloc(strlen((portCHAR*)datas->message)+(2*(unsigned int)AX25_ADD_MAX_Size)+1,sizeof(unsigned portCHAR));
+  for(counter=0;counter<=ullenght_sendid;counter++){
+      frame->message[CounterFrameOut++]=(unsigned char)frame->send_id[counter];
+  }
+  counter=0;
+
   if(frame->ulenght_sender<AX25_ADD_MAX_Size){
       for(ulcntsendid=AX25_ADD_MAX_Size-(AX25_ADD_MAX_Size-frame->ulenght_sender);ulcntsendid<AX25_ADD_MAX_Size;ulcntsendid++){
-	  *frame->message++=(unsigned portCHAR)0x20;
+	  //frame->message[CounterFrameOut++]=' ';
+	  strcat((portCHAR*)frame->message," ");
+	  CounterFrameOut++;
       }
 
   }
-  strncat((portCHAR*)frame->message,(portCHAR*)frame->dest_id,frame->ulenght_destination);
+  strcat((portCHAR*)frame->message,(portCHAR*)frame->dest_id);
+  //for(counter=0;counter<=ullenght_destid;counter++){
+  //frame->message[CounterFrameOut++]=(unsigned char)frame->dest_id[counter];
+  //}
+  counter=0;
+  //strncat((portCHAR*)frame->message,(portCHAR*)frame->dest_id,frame->ulenght_destination);
   if(frame->ulenght_destination<AX25_ADD_MAX_Size){
       for(ulcntdestid=AX25_ADD_MAX_Size-(AX25_ADD_MAX_Size-frame->ulenght_destination);ulcntdestid<AX25_ADD_MAX_Size;ulcntdestid++){
-	  *frame->message++=(unsigned portCHAR)0x20;
+	  strcat((portCHAR*)frame->message," ");
+	  CounterFrameOut++;
       }
   }
-  *frame->message='\0';
+  //frame->message[CounterFrameOut]='\0';
+  vPortFree(frame->dest_id);
+  vPortFree(frame->send_id);
+  frame->dest_id=NULL;
+  frame->send_id=NULL;
   frame->MessSizeWithNoPID=strlen((portCHAR*)frame->message);
 
 }
@@ -723,10 +777,12 @@ void PrepareFrameForTransmitt(AX_25 *frame){
       frame->messageBitStuffedBeforeTX[ulcountchar]=frame->message[ulcountchar];
   }
   frame->messageShiftedBeforeTX[ulcountchar]='\0';
+  vPortFree(frame->message);
+  frame->message=NULL;
 }
 void AddStartAndStopFlags(AX_25 *frame){
-    frame->messageWithAX25Flags=NULL;
-    frame->messageWithAX25Flags=(unsigned portCHAR*)pvPortMalloc((frame->MessSizeWithNoStartAndStopFlags+MAX_AX25_FLAGS)*sizeof(unsigned portCHAR));
+  frame->messageWithAX25Flags=NULL;
+  frame->messageWithAX25Flags=(unsigned portCHAR*)pvPortMalloc((frame->MessSizeWithNoStartAndStopFlags+MAX_AX25_FLAGS)*sizeof(unsigned portCHAR));
 }
 /*!
  * \fn Bit_Reverse
@@ -757,4 +813,11 @@ unsigned int  insertdata(unsigned char *p_Message,unsigned char *p_Data,unsigned
       cnt++;
   }
   return cnt;
+}
+/*!
+ * \fn
+ */
+void vTimerX25callback(xTimerHandle Timer){
+  //In this function unlock a semaphore
+  xSemaphoreGive(Stage3);
 }
