@@ -21,6 +21,9 @@ typedef struct
 	unsigned char *messageWithAX25Flags;
 	unsigned char *messageWithPreambleSync;
 	unsigned char *messageFromAX25func;
+	unsigned char *messageWithoutPayload;
+	unsigned char *messageWithOutPID;
+	unsigned char *messageWithOutCRCOctet;
 	unsigned char *fullmessage;
 	unsigned char *NrziChaine;
 	unsigned char *endmessage;

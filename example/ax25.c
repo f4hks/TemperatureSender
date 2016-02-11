@@ -44,6 +44,7 @@ static void InitTxInsertion(unsigned char *Mess,unsigned int TXwaitReapeat,unsig
 static void AddFlags(unsigned char *Mess,unsigned int FlagNumber,unsigned int *PosiInit);
 static void AddAdresses(AX_25 *frame,AX_25_SEND_DATA *datas,AX_25_CFG *cfg_ax25);
 static void AddMessage(AX_25 *frame,AX_25_SEND_DATA *datas);
+static void AddPid(AX_25 *frame,AX_25_CFG *cfg_ax25);
 static unsigned char Bit_Reverse( unsigned char x );
 void vTimerX25callback(xTimerHandle Timer);
 /*!
@@ -259,6 +260,7 @@ void vAX25taskBase(void *pvParameters){
 	      }
 #endif
 	      AddAdresses(&trame,&datas,&cfg_ax25);
+	      AddPid(&trame,&cfg_ax25);
 	      AddMessage(&trame,&datas);
 	      /*Insertion du PID */
 #if 0
@@ -707,22 +709,22 @@ void AddAdresses(AX_25 *frame,AX_25_SEND_DATA *datas,AX_25_CFG *cfg_ax25){
   strcpy((portCHAR*)frame->dest_id,(portCHAR*)datas->dest_id);
   frame->ulenght_destination=ullenght_destid;
   frame->ulenght_sender=ullenght_sendid;
-  frame->message=NULL;
-  frame->message=pvPortCalloc(strlen((portCHAR*)datas->message)+(2*(unsigned int)AX25_ADD_MAX_Size)+1,sizeof(unsigned portCHAR));
+  frame->messageWithOutPID=NULL;
+  frame->messageWithOutPID=pvPortCalloc(strlen((portCHAR*)datas->message)+(2*(unsigned int)AX25_ADD_MAX_Size)+1,sizeof(unsigned portCHAR));
   for(counter=0;counter<=ullenght_sendid;counter++){
-      frame->message[CounterFrameOut++]=(unsigned char)frame->send_id[counter];
+      frame->messageWithOutPID[CounterFrameOut++]=(unsigned char)frame->send_id[counter];
   }
   counter=0;
 
   if(frame->ulenght_sender<AX25_ADD_MAX_Size){
       for(ulcntsendid=AX25_ADD_MAX_Size-(AX25_ADD_MAX_Size-frame->ulenght_sender);ulcntsendid<AX25_ADD_MAX_Size;ulcntsendid++){
 	  //frame->message[CounterFrameOut++]=' ';
-	  strcat((portCHAR*)frame->message," ");
+	  strcat((portCHAR*)frame->messageWithOutPID," ");
 	  CounterFrameOut++;
       }
 
   }
-  strcat((portCHAR*)frame->message,(portCHAR*)frame->dest_id);
+  strcat((portCHAR*)frame->messageWithOutPID,(portCHAR*)frame->dest_id);
   //for(counter=0;counter<=ullenght_destid;counter++){
   //frame->message[CounterFrameOut++]=(unsigned char)frame->dest_id[counter];
   //}
@@ -730,7 +732,7 @@ void AddAdresses(AX_25 *frame,AX_25_SEND_DATA *datas,AX_25_CFG *cfg_ax25){
   //strncat((portCHAR*)frame->message,(portCHAR*)frame->dest_id,frame->ulenght_destination);
   if(frame->ulenght_destination<AX25_ADD_MAX_Size){
       for(ulcntdestid=AX25_ADD_MAX_Size-(AX25_ADD_MAX_Size-frame->ulenght_destination);ulcntdestid<AX25_ADD_MAX_Size;ulcntdestid++){
-	  strcat((portCHAR*)frame->message," ");
+	  strcat((portCHAR*)frame->messageWithOutPID," ");
 	  CounterFrameOut++;
       }
   }
@@ -739,20 +741,30 @@ void AddAdresses(AX_25 *frame,AX_25_SEND_DATA *datas,AX_25_CFG *cfg_ax25){
   vPortFree(frame->send_id);
   frame->dest_id=NULL;
   frame->send_id=NULL;
-  frame->MessSizeWithNoPID=strlen((portCHAR*)frame->message);
+  frame->MessSizeWithNoPID=strlen((portCHAR*)frame->messageWithOutPID);
 
 }
 void AddMessage(AX_25 *frame,AX_25_SEND_DATA *datas){
-  strncat((portCHAR*)frame->message,(portCHAR*)datas->message,frame->MessSize);
-  frame->MessSizeWithNoCRC=strlen((portCHAR*)frame->message);
+  frame->messageWithOutCRCOctet=NULL;
+  frame->MessSize=strlen((portCHAR*)datas->message);
+  frame->messageWithOutCRCOctet=pvPortMalloc(frame->MessSizeWithNoPayload+strlen((portCHAR*)datas->message)+1);
+  strncpy((portCHAR*)frame->messageWithOutCRCOctet,(portCHAR*)frame->messageWithoutPayload,frame->MessSizeWithNoPayload);
+  vPortFree(frame->messageWithoutPayload);
+  frame->messageWithoutPayload=NULL;
+  strncat((portCHAR*)frame->messageWithOutCRCOctet,(portCHAR*)datas->message,frame->MessSize);
+  frame->MessSizeWithNoCRC=strlen((portCHAR*)frame->messageWithOutCRCOctet);
 
 }
 void AddPid(AX_25 *frame,AX_25_CFG *cfg_ax25){
-  frame->message=frame->message+frame->MessSizeWithNoPID+1;
-  *frame->message++=cfg_ax25->control;
-  *frame->message++=cfg_ax25->pid;
-  *frame->message='\0';
-  frame->MessSizeWithNoPayload=strlen((portCHAR*)frame->message);
+  unsigned portSHORT sizemess=frame->MessSizeWithNoPID;
+  frame->messageWithoutPayload=pvPortMalloc(strlen((portCHAR*)frame->messageWithOutPID)+3*sizeof(unsigned char ));
+  strncpy((portCHAR*)frame->messageWithoutPayload,(portCHAR*)frame->messageWithOutPID,strlen((portCHAR*)frame->messageWithOutPID));
+  vPortFree(frame->messageWithOutPID);
+  frame->messageWithOutPID=NULL;
+  frame->messageWithoutPayload[sizemess+1]=cfg_ax25->control;
+  frame->messageWithoutPayload[sizemess+2]=cfg_ax25->pid;
+  frame->messageWithoutPayload[sizemess+2]='\0';
+  frame->MessSizeWithNoPayload=strlen((portCHAR*)frame->messageWithoutPayload);
 
 }
 void AddCRC(AX_25 *frame){
