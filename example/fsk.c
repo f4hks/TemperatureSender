@@ -119,8 +119,8 @@ xQueueHandle xStartQueueFSK(void){
   DataStream=xQueueCreate(1,sizeof(DigitalData));
   xTimerLock=xSemaphoreCreateMutex();//Creation of a mutex that lock by encoding function and unlocked by Timer
   //ConfigGenerator=InitGenQueue();
-  xSemFskEncoder=xQueueCreateCountingSemaphore(1,0);
-  xTaskCreate(vTaskEncodeDataStream,( const signed portCHAR * ) "FSK", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, &tskFSKconv);
+  //xSemFskEncoder=xQueueCreateCountingSemaphore(1,0);
+  xTaskCreate(vTaskEncodeDataStream,( const signed portCHAR * ) "FSK", 128, NULL, tskIDLE_PRIORITY + 1, &tskFSKconv);
   return DataStream;
 }
 xQueueHandle xStartConfigFSK(void){

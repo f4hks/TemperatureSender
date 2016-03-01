@@ -266,6 +266,7 @@ static void taskSendParameters(void *pVparam)
 static void taskCreateMessage(void *pVparam)
 {
   for(;;){
+      //Connaitre l'état du sémaphore de la couche ax25
       if(SemAx25Wait!=NULL){
 	  xSemaphoreGive(SemAx25Wait);
 	  if(xSemaphoreTake(SemAx25Wait,portTICK_RATE_MS*10)==pdTRUE){
@@ -522,7 +523,8 @@ static void vTaskSendToFsk(void *pVparameters)
   for(;;){
       if(SemAx25Wait!=NULL)
 	{
-	  if(xSemaphoreTake(SemAx25Wait,portTICK_RATE_MS*400)==pdTRUE){
+	  //On se synchronise avec le semaphore de la couche X25
+	  if(xSemaphoreTake(GetSemStatusX25Send(),portTICK_RATE_MS*400)==pdTRUE){
 	      portBASE_TYPE StatuFSK=0;
 	      test=0x00;
 	      if(AX25Done==true){
@@ -581,6 +583,7 @@ static void taskStatusFSKGet(void *Pvparam){
 }
 
 //}
+#if 0
 static void Singene1k(void *pVparameters){
   for(;;){
       //vTaskDelay(3000/portTICK_RATE_MS);
@@ -603,6 +606,7 @@ static void Singene1k(void *pVparameters){
 
   }
 }
+
 static void Singene2k(void *pVparameters){
   for(;;){
       vTaskDelay(3000/portTICK_RATE_MS);
@@ -625,6 +629,7 @@ static void Singene2k(void *pVparameters){
   }
 
 }
+#endif
 void vTimerCallback1(xTimerHandle Timer){
   portBASE_TYPE indexTimer;
   const portBASE_TYPE comptageMAx=60;
@@ -676,7 +681,7 @@ int main(void)
   prvSetupHardware();
   Sem=xSemaphoreCreateMutex();
   SemAX25cfgLock=xSemLockAx25Cfg();
-  SemAx25Wait=xSemLockX25();//Pour attendre la fin de l'encodageX25
+  SemAx25Wait=xBeaconTime(30000);//Pour attendre la fin de l'encodageX25
   //Mise en place des files de messages
   xLCDQueue = xStartLCDTask();
 
@@ -695,6 +700,7 @@ int main(void)
   xFskDatas=xStartQueueFSK();
   xFskModulatorStatus=xStartStatusQueueFSK();
   TimerAx25Delay=CreateAX25Timer(30000);
+  StartX25Wait(TimerAx25Delay);
   TransfertFSK=xQueueCreate(1,sizeof(unsigned portCHAR*));
   //uint32_t Clk=SystemCoreClock;
   //uint32_t dividerClk=Chip_Clock_GetCPUClockDiv();
@@ -718,12 +724,12 @@ int main(void)
   //xTaskCreate(vUARTTask, (signed char *) "vTaskUart",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),(xTaskHandle *) NULL);
 
 
-  xTaskCreate(taskSendParameters,(const signed char *) "vAx25",64, NULL, (tskIDLE_PRIORITY + 1UL),&TskcfgAX25);
+  xTaskCreate(taskSendParameters,(const signed char *) "vAx25",32, NULL, (tskIDLE_PRIORITY + 1UL),&TskcfgAX25);
 
   xTaskCreate(taskCreateMessage,(const signed char *) "vAx25",2048, NULL, (tskIDLE_PRIORITY + 1UL),&TsksendAX25);
   xTaskCreate(taskGetMessages,(const signed char *) "vAx25Get",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskGetx25);
   xTaskCreate(taskStatusFSKGet,(const signed portCHAR*)"TaskGETFSKStatus",32, NULL, (tskIDLE_PRIORITY + 1UL),&TskStatusFSK);
-  xTaskCreate(vTaskSendToFsk,(const signed char *)"VtaskSendFSK",512,NULL,(tskIDLE_PRIORITY+1UL),&TskSendToFsk);
+  xTaskCreate(vTaskSendToFsk,(const signed char *)"VtaskSendFSK",256,NULL,(tskIDLE_PRIORITY+1UL),&TskSendToFsk);
   //xTaskCreate(Singene1k,(const signed char *) "sine1k",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskSineGen1k);
   //xTaskCreate(Singene2k,(const signed char *) "sine2k",configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 1UL),&TskSineGen2k);
   /*Creating timer */

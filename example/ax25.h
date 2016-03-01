@@ -24,6 +24,8 @@ typedef struct
 	unsigned char *messageWithoutPayload;
 	unsigned char *messageWithOutPID;
 	unsigned char *messageWithOutCRCOctet;
+	unsigned char *messageWithoutSyncFlags;
+	unsigned char *messageNrzi;
 	unsigned char *fullmessage;
 	unsigned char *NrziChaine;
 	unsigned char *endmessage;
@@ -34,11 +36,14 @@ typedef struct
 	unsigned int NexTbitValue;
 	unsigned int BitPosINframe;
 	unsigned int BitPosOUTframe;
+	unsigned portSHORT AX25FrameSize;
 	unsigned portSHORT MessSize;
 	unsigned portSHORT MessSizeWithNoCRC;
 	unsigned portSHORT MessSizeWithNoPID;
 	unsigned portSHORT MessSizeWithNoPayload;
 	unsigned portSHORT MessSizeWithNoStartAndStopFlags;
+	unsigned portSHORT MessSizeWithNoStuffed;
+	unsigned portSHORT MessSizeNoNrzi;
 	unsigned portSHORT MessSizeWithNoPreamble;
 	unsigned portBASE_TYPE ulenght_destination;
 	unsigned portBASE_TYPE ulenght_sender;
@@ -52,6 +57,7 @@ typedef struct
 	unsigned portCHAR *send_id;//Station de base
 	unsigned portCHAR pid;
 	unsigned portCHAR control;
+	unsigned portBASE_TYPE beaconInterval;
 	//Autres champs possibles(relay etc)
 }__attribute__((__packed__, aligned(2))) AX_25_CFG;
 /*!
@@ -99,7 +105,9 @@ portBASE_TYPE StartX25Wait(xTimerHandle Timer);
 portBASE_TYPE StopX25wait(xTimerHandle Timer);
 xQueueHandle xStartAX25task(void);
 xQueueHandle xStartAx25Cfg(xSemaphoreHandle *Sem);
+xSemaphoreHandle xSemLockEncodeX25(void);
 xQueueHandle xStartAX25pipe(void);
+xSemaphoreHandle xBeaconTime(unsigned portBASE_TYPE time);
 xSemaphoreHandle xSemLockX25(void);
 xSemaphoreHandle xSemLockAx25Cfg(void);
 xSemaphoreHandle GetSemStatusX25cfg(void);

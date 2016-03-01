@@ -31,20 +31,24 @@ xSemaphoreHandle Stage1;//Configuration
 xSemaphoreHandle Stage2;//Encoding
 xSemaphoreHandle Stage3;//Send to main task
 xSemaphoreHandle Sems;
-AX_25_CFG cfg_ax25;
-AX_25 trame;
+xSemaphoreHandle SemAllowAx25;
+xTimerHandle T_ax25;
+AX_25_CFG cfg_ax25;//Contain the configuration
+AX_25 trame;//This variable contains all the part of the data that will want to transmit
 AX_25_SEND_DATA datas;
 
 P_AX_25 *pAX25trame;
 static void vAX25taskBase(void *pvParameters);
 static void vAX25cfg(void *param);
-static void vAX25send(void *pvParameters);
-static void Nrzi(unsigned char *Mess,unsigned char *outMess);
-static void InitTxInsertion(unsigned char *Mess,unsigned int TXwaitReapeat,unsigned char *Out,unsigned int *PosiInit);
-static void AddFlags(unsigned char *Mess,unsigned int FlagNumber,unsigned int *PosiInit);
+//static void vAX25send(void *pvParameters);
+static void Nrzi(AX_25 *frame);
+static void InitTxInsertion(AX_25 *frame,unsigned int TXwaitReapeat,unsigned int *PosiInit);
+static void AddFlags(AX_25 *frame,unsigned int FlagNumber,unsigned int *PosiInit);
 static void AddAdresses(AX_25 *frame,AX_25_SEND_DATA *datas,AX_25_CFG *cfg_ax25);
 static void AddMessage(AX_25 *frame,AX_25_SEND_DATA *datas);
 static void AddPid(AX_25 *frame,AX_25_CFG *cfg_ax25);
+static  void AddCRC(AX_25 *frame);
+static void PrepareFrameForTransmitt(AX_25 *frame);
 static unsigned char Bit_Reverse( unsigned char x );
 void vTimerX25callback(xTimerHandle Timer);
 /*!
@@ -53,7 +57,8 @@ void vTimerX25callback(xTimerHandle Timer);
  * This function create a timer , this timer will be used for task synchronisation
  * */
 xTimerHandle CreateAX25Timer(unsigned int Time){
-  return xTimerCreate((const signed char*)"TimerX25",1000*Time,pdFALSE,(void*)2,vTimerX25callback);
+  SemAllowAx25=xBeaconTime(Time);
+  return xTimerCreate((const signed char*)"TimerX25",10*Time,pdFALSE,(void*)2,vTimerX25callback);
 
 }
 /*!
@@ -61,6 +66,7 @@ xTimerHandle CreateAX25Timer(unsigned int Time){
  * \brief Start AX25 timer for task sync
  */
 portBASE_TYPE StartX25Wait(xTimerHandle Timer){
+  //xSemaphoreTake(Sems,portTICK_RATE_MS);
   return xTimerStart(Timer,0);
 }
 portBASE_TYPE StopX25wait(xTimerHandle Timer){
@@ -68,7 +74,7 @@ portBASE_TYPE StopX25wait(xTimerHandle Timer){
 }
 /*!
  * \fn MakeFrame
- * \brief Crée la structure avec les messages
+ * \brief Create the structure that contains all the needed data
  */
 AX_25_SEND_DATA MakeFrame(const unsigned portCHAR* Message,const unsigned portCHAR* Dest){
   AX_25_SEND_DATA localFrame;
@@ -87,7 +93,7 @@ AX_25_SEND_DATA MakeFrame(const unsigned portCHAR* Message,const unsigned portCH
 AX_25_CFG MakeConfig(const unsigned portCHAR* Sender,unsigned int PID){
   AX_25_CFG localCfg;
   localCfg.pid=(unsigned char)PID;
-
+  localCfg.beaconInterval=30000;
   localCfg.send_id=(unsigned char *)Sender;
   return localCfg;
 }
@@ -135,32 +141,48 @@ xSemaphoreHandle xSemLockEncodeX25(void){
   return Stage2;
 
 }
+/*!
+ * \fn xBeaconTime
+ * \returns xSemaphore
+ * This function create a semaphore for wait
+ */
+xSemaphoreHandle xBeaconTime(unsigned portBASE_TYPE time){
+  SemAllowAx25=xSemaphoreCreateMutex();
+  //xSemaphoreTake(SemAllowAx25,portTICK_RATE_MS*time*2);
+  return SemAllowAx25;
+}
 xSemaphoreHandle GetSemStatusX25cfg(void){
   return Stage1;
 }
 xSemaphoreHandle GetSemStatusX25Enc(void){
-  return Stage2;
+  return SemAllowAx25;
 }
 xSemaphoreHandle GetSemStatusX25Send(void){
-  return Stage3;
+  return SemAllowAx25;
 }
+
 /*!
  * \fn InitTxInsertion
  * \brief Insersion de 010101 en début de trame
  * Cette fonction est à executer après le passage des valeurs en NRZI
  * Elle permet d'attendre que l'émeteur et démarré mais aussi de tester la fonction de modulation FSK
  * */
-void InitTxInsertion(unsigned char *Mess,unsigned int TXwaitReapeat,unsigned char *Out,unsigned int *PosiInit){
+void InitTxInsertion(AX_25 *frame,unsigned int TXwaitReapeat,unsigned int *PosiInit){
   unsigned int CountMess=0;
   unsigned int CountMax=*PosiInit;
-  if(Mess!=NULL){
+  frame->endmessage=pvPortMalloc(frame->MessSizeWithNoPreamble+(TXwaitReapeat+1)*sizeof(unsigned portCHAR));
+  *frame->endmessage=(unsigned char)AX25_initmod_start;
+  if(frame->endmessage!=NULL){
       while(CountMess++<=CountMax+TXwaitReapeat)
 	{
-	  Out[CountMess]=(unsigned char)AX25_initmod_start;
+	  frame->endmessage[CountMess]=(unsigned char)AX25_initmod_start;
 	}
-      Out[CountMess]='\0';
-      strncat((char*)Out,(char*)Mess,strlen((char*)Mess));
-      *PosiInit=strlen((char*)Out);
+      frame->endmessage[CountMess]='\0';
+      strncat((char*)frame->endmessage,(char*)frame->messageNrzi,frame->MessSizeWithNoPreamble);
+      *PosiInit=strlen((char*)frame->endmessage);
+      frame->AX25FrameSize=strlen((char*)frame->endmessage);
+      vPortFree(frame->messageNrzi);
+      frame->messageNrzi=NULL;
 
   }
 
@@ -171,21 +193,34 @@ void InitTxInsertion(unsigned char *Mess,unsigned int TXwaitReapeat,unsigned cha
  *  \brief Insert AX25 flags
  *
  */
-void AddFlags(unsigned char *Mess,unsigned int FlagNumber,unsigned int *PosiInit){
+void AddFlags(AX_25 *frame,unsigned int FlagNumber,unsigned int *PosiInit){
 
   unsigned int Count=*PosiInit;
   unsigned int PositionInitaile=*PosiInit;
+  unsigned int Endsize;
   unsigned char flagAx25=(unsigned char)AX25_Flags;
-  if(Mess!=NULL){
-      Mess=Mess+Count;
-      while(Count++<=FlagNumber+PositionInitaile){
+  frame->messageWithAX25Flags=pvPortCalloc(frame->MessSizeWithNoStartAndStopFlags+(FlagNumber<<1),sizeof(unsigned portCHAR));
+  if(frame->MessSizeWithNoStartAndStopFlags!=0){
+      strncpy((portCHAR*)frame->messageWithAX25Flags,(portCHAR*)"~",1);
+      while(Count++<((FlagNumber>>1)+PositionInitaile)-1){
+	  //strncat((portCHAR*)frame->messageWithAX25Flags,(portCHAR*)"~",2);
+	  frame->messageWithAX25Flags[Count]=flagAx25;
 
-	  *Mess=flagAx25;
-	  Mess=Mess+1;
+
 
       }
-      Mess[Count]='\0';
-      PosiInit=&Count;
+      frame->messageWithAX25Flags[Count]='\0';
+      strncat((portCHAR*)frame->messageWithAX25Flags,(portCHAR*)frame->messageBitStuffedBeforeTX,frame->MessSizeWithNoStartAndStopFlags);
+
+      //PosiInit=Count+frame->MessSizeWithNoStartAndStopFlags+1;
+      Count=strlen((portCHAR*)frame->messageWithAX25Flags);
+      Endsize=Count+(FlagNumber>>1)+1;
+      frame->messageWithAX25Flags[Count]='\0';
+      strcat((portCHAR*)frame->messageWithAX25Flags,(portCHAR*)"~");
+      while(Count++<=Endsize){
+	  frame->messageWithAX25Flags[Count]=flagAx25;
+      }
+      frame->MessSizeNoNrzi=Count;
   }
 }
 /*!
@@ -196,161 +231,57 @@ void vAX25taskBase(void *pvParameters){
   for(;;)
     {//Verifier que l'on a passé l'étape 1 avant
       if(Sems!=NULL){//Au cas où
-	  //xSemaphoreGive(Sems);
-
-	  if(xSemaphoreTake(Sems,portTICK_RATE_MS*10==pdTRUE))
-	    {
-
-	      portBASE_TYPE  xSendDataStat;
-	      portBASE_TYPE  xGetDataAX25stat;
-	      portBASE_TYPE  xGetCfgStat;
-	      unsigned portBASE_TYPE size;
-	      unsigned portBASE_TYPE size_fullmessage;
-	      unsigned int posi=0;
-	      unsigned portBASE_TYPE lenght_sendid,cntsendid,lenght_dest_id,cntdestid;
-	      //vTaskDelay(1000*portTICK_RATE_MS);
-	      xGetDataAX25stat=xQueueReceive(xAX25Queue,&datas,portTICK_RATE_MS*100);
-	      while(xGetDataAX25stat!=pdTRUE);
-	      xGetCfgStat=xQueueReceive(xAX25Cfg,&cfg_ax25,portTICK_RATE_MS*100);
-	      while(xGetCfgStat!=pdTRUE);
-	      //Attente de données
-	      //Copie des parametres
-	      taskENTER_CRITICAL();
-#if 0
-	      trame.endmessage=NULL;
-	      trame.send_id=NULL;
-	      //trame.send_id=pvPortMalloc(10*sizeof(unsigned portCHAR));
-	      trame.send_id=pvPortCalloc(10,sizeof(unsigned portCHAR));
-	      trame.dest_id=NULL;
-	      trame.dest_id=pvPortCalloc(10,sizeof(unsigned portCHAR));
-	      trame.message=NULL;
-	      trame.message=pvPortCalloc(strlen((char*)datas.message),sizeof(unsigned portCHAR));
-	      trame.crc_hight=0xff;
-	      trame.crc_low=0xff;
-	      trame.NrziChaine=NULL;
-	      lenght_sendid=strlen((portCHAR*)cfg_ax25.send_id);
-	      lenght_dest_id=strlen((portCHAR*)datas.dest_id);
-
-
-	      //strncat((portCHAR*)trame.message,(portCHAR*)datas.message,strlen((portCHAR*)datas.message));
-	      //trame.message[0]='~';
-	      //trame.message[1]='~';
-	      //strncat((portCHAR*)trame.message,(portCHAR*)trame.send_id,strlen((portCHAR*)trame.send_id));
-	      //vPortFree(trame.send_id);
-	      size=strlen((portCHAR*)trame.message);
-	      if(lenght_sendid<AX25_ADD_MAX_Size){
-		  cntsendid=AX25_ADD_MAX_Size-(AX25_ADD_MAX_Size-lenght_sendid);
-		  while(cntsendid++<AX25_ADD_MAX_Size){
-		      trame.message[size++]=' ';
-		  }
-	      }
-	      size=strlen((portCHAR*)trame.message);
-	      strncat((portCHAR*)trame.message,(portCHAR*)trame.dest_id,strlen((portCHAR*)trame.dest_id));
-	      vPortFree(trame.send_id);
-	      vPortFree(trame.dest_id);
-	      trame.send_id=NULL;
-	      trame.dest_id=NULL;
-	      size=strlen((portCHAR*)trame.message);
-	      if(lenght_dest_id<AX25_ADD_MAX_Size){
-		  cntdestid=AX25_ADD_MAX_Size-(AX25_ADD_MAX_Size-lenght_dest_id);
-		  while(cntdestid++<AX25_ADD_MAX_Size)
-		    {
-		      trame.message[size++]=' ';
-		    }
-	      }
-#endif
-	      AddAdresses(&trame,&datas,&cfg_ax25);
-	      AddPid(&trame,&cfg_ax25);
-	      AddMessage(&trame,&datas);
-	      /*Insertion du PID */
-#if 0
-	      size=strlen((portCHAR*)trame.message);
-	      strncat((portCHAR*)trame.message,(portCHAR*)datas.message,strlen((portCHAR*)datas.message));
-	      size=strlen((portCHAR*)trame.message);
-	      /*Dans cette partie le programme calcule la checksum du paquet généré */
-	      trame.crc_hight=(Crc16(AX25_initCRC,trame.message,size)>>4)&Mask8bit;
-	      trame.crc_low=(Crc16(AX25_initCRC,trame.message,size))&Mask8bit;
-	      trame.crc_hight=Bit_Reverse(trame.crc_hight);
-	      trame.crc_low=Bit_Reverse(trame.crc_low);
-	      trame.crc_hight=~trame.crc_hight;
-	      trame.crc_low=~trame.crc_low;
-	      /*Insertion du low fcs dans la trame */
-	      trame.message[size++]=(unsigned char)trame.crc_low;
-	      trame.message[size++]='\0';
-	      /*Insertion du high fcs dans la trame*/
-	      size=strlen((portCHAR*)trame.message);
-	      trame.message[size++]=(unsigned char)trame.crc_hight;
-	      trame.message[size]='\0';
-	      size=strlen((portCHAR*)trame.message);
-	      /*Bit stuffing*/
-	      trame.stuffedFrame=NULL;
-	      trame.stuffedFrame=pvPortCalloc(size+10,sizeof(unsigned portCHAR));
-	      strncpy((portCHAR*)trame.stuffedFrame,(portCHAR*)trame.message,size);
-	      shiftmessageleft(trame.stuffedFrame);
-	      ZeroInsert(&trame);
-	      size=strlen((portCHAR*)trame.stuffedFrame);
-	      trame.fullmessage=NULL;
-	      trame.fullmessage=pvPortCalloc(size+15,sizeof(unsigned portCHAR));
-	      //shiftmessageright(trame.stuffedFrame);
-	      //Mise en paquet finale
-#endif
-	      posi=0;
-	      AddFlags((unsigned char*)trame.fullmessage,5,&posi);
-	      strncat((portCHAR*)trame.fullmessage,(portCHAR*)trame.stuffedFrame,size);
-	      vPortFree(trame.stuffedFrame);
-	      trame.stuffedFrame=NULL;
-	      size_fullmessage=strlen((portCHAR*)trame.fullmessage);
-	      if(trame.NrziChaine==NULL){
-		  trame.NrziChaine=(unsigned portCHAR*)pvPortMalloc(sizeof(unsigned portCHAR)*size_fullmessage);
-	      }
-	      unsigned int taille_test=strlen((char*)trame.NrziChaine);
-	      posi=size_fullmessage;
-	      AddFlags(trame.fullmessage,5,&posi);
-	      //Nrzi(trame.fullmessage,trame.NrziChaine);
-	      posi=strlen((char*)trame.fullmessage);
-	      if(trame.endmessage==NULL){
-		  trame.endmessage=(unsigned char*)malloc(posi*sizeof(unsigned char));
-	      }
-	      //Ajout des flags de fin
-	      InitTxInsertion(trame.fullmessage,5,trame.endmessage,&posi);
-	      portEXIT_CRITICAL();
-	      //Tou envoyer
-	      xSendDataStat=xQueueSend(xAX25pipe,&trame,portMAX_DELAY);
-
-	      if(xSendDataStat!=pdTRUE)
+	  if(xSemaphoreTake(SemAllowAx25,portTICK_RATE_MS*10==pdTRUE)){
+	      if(xSemaphoreTake(Sems,portTICK_RATE_MS*10==pdTRUE))
 		{
-		  //vPortFree(trame.dest_id);
-		  //vPortFree(trame.send_id);
-		  vPortFree(trame.message);
-		  vPortFree(trame.fullmessage);
-		  //vPortFree(trame.stuffedFrame);
-		  vPortFree(trame.endmessage);
-		  trame.message=NULL;
-		  trame.dest_id=NULL;
-		  trame.send_id=NULL;
-		  trame.fullmessage=NULL;
-		  trame.stuffedFrame=NULL;
-		  trame.endmessage=NULL;
+
+		  portBASE_TYPE  xSendDataStat;
+		  portBASE_TYPE  xGetDataAX25stat;
+		  portBASE_TYPE  xGetCfgStat;
+		  unsigned portBASE_TYPE size_fullmessage=0;
+		  unsigned int posi=0;
+		  //vTaskDelay(1000*portTICK_RATE_MS);
+		  xGetDataAX25stat=xQueueReceive(xAX25Queue,&datas,portTICK_RATE_MS*100);
+		  while(xGetDataAX25stat!=pdTRUE);
+		  xGetCfgStat=xQueueReceive(xAX25Cfg,&cfg_ax25,portTICK_RATE_MS*100);
+		  while(xGetCfgStat!=pdTRUE);
+		  //Attente de données
+		  //Copie des parametres
+		  taskENTER_CRITICAL();
+		  AddAdresses(&trame,&datas,&cfg_ax25);
+		  AddPid(&trame,&cfg_ax25);
+		  AddMessage(&trame,&datas);
+		  AddCRC(&trame);
+		  PrepareFrameForTransmitt(&trame);
+		  ZeroInsert(&trame);
+		  posi=0;
+		  AddFlags(&trame,10,&posi);
+		  Nrzi(&trame);
+		  posi=size_fullmessage;
+		  InitTxInsertion(&trame,5,&posi);
+		  portEXIT_CRITICAL();
+		  //Tou envoyer
+		  xSendDataStat=xQueueSend(xAX25pipe,&trame,portMAX_DELAY);
+
+		  if(xSendDataStat!=pdTRUE)
+		    {
+
+		      vPortFree(trame.endmessage);
+
+		      trame.endmessage=NULL;
+		    }
+		  else{
+
+		      vPortFree(trame.endmessage);
+		      trame.endmessage=NULL;
+		  }
+
+		  xSemaphoreGive(Sems);//Libération du sémaphore 2
+
+
 		}
-	      else{
-		  //vPortFree(trame.dest_id);
-		  //vPortFree(trame.send_id);
-		  vPortFree(trame.message);
-		  vPortFree(trame.fullmessage);
-		  vPortFree(trame.stuffedFrame);
-		  vPortFree(trame.endmessage);
-		  trame.message=NULL;
-		  trame.dest_id=NULL;
-		  trame.send_id=NULL;
-		  trame.fullmessage=NULL;
-		  trame.stuffedFrame=NULL;
-		  trame.endmessage=NULL;
-	      }
+	  }
 
-	      xSemaphoreGive(Sems);//Libération du sémaphore 2
-
-
-	    }
 
       }else{
 	  //Ne rien faire
@@ -396,7 +327,7 @@ void vAX25cfg(void *param){
     }
 
 }
-
+#if 0
 void vAX25send(void *pvParameters){
   for(;;){
       //xSemaphoreGive(Sems);
@@ -438,6 +369,7 @@ void vAX25send(void *pvParameters){
   }
 
 }
+#endif
 /*!
  * @fn shiftmessageleft
  * @brief Shift message bits to left
@@ -449,6 +381,7 @@ void shiftmessageleft(unsigned char *p_Message ){
       p_Message[cnt]=p_Message[cnt]<<1;
       cnt++;
   }
+  p_Message[cnt]='\0';
 }
 /*!
  * \fn shiftmessageright
@@ -491,51 +424,49 @@ void stuffingframe(P_AX_25 *ax25_frame)
  * \fn Nrzi
  * \brief NRZI encoding
  */
-void Nrzi(unsigned char *Mess,unsigned char *outMess){
+void Nrzi(AX_25 *frame){
   unsigned int Cnt=0;
   unsigned int CntBits=0;
   bool wasZero=false;
-  unsigned char *TmpPtr=NULL;
-  TmpPtr=(unsigned char*)pvPortCalloc(strlen((char*)Mess)+1,sizeof(unsigned char));
-  unsigned int Lenght=strlen((portCHAR*)Mess);
-  while(Cnt++<Lenght)
+  frame->messageNrzi=NULL;
+  frame->messageNrzi=pvPortMalloc(frame->MessSizeNoNrzi+1*sizeof(unsigned char));
+  while(Cnt++<frame->MessSizeNoNrzi)
     {
-      //0 à 8
-      unsigned char Car=(unsigned portCHAR)Mess[Cnt];
+      //0 to 8
+      frame->messageNrzi[Cnt]=frame->messageWithAX25Flags[Cnt];
       while(CntBits++<8)
 	{
-	  if(Car&(1u<<CntBits))//Si 1
+	  if(frame->messageNrzi[Cnt]&(1u<<CntBits))//If 1 we make a state transition
 	    {
-
-	      Car=Car;
-	      wasZero=false;
-
-	    }
-	  else{//à zero
-	      if(wasZero==true){//à zero avant
-		  wasZero=true;
-		  Car=Car|1u<<CntBits;//On le met à 1
+	      if(wasZero==true){//Was zero before
+		  wasZero=false;
+		  frame->messageNrzi[Cnt]=frame->messageNrzi[Cnt]|1<<CntBits;//Output to one
 
 	      }
 	      else{//à 1 avant
-		  wasZero=true;
-		  Car=Car&1u<<CntBits;//On le met à 0
+		  wasZero=false;
+		  frame->messageNrzi[Cnt]=frame->messageNrzi[Cnt]&1<<CntBits;//Output to out
 	      }
-	  }
+	      wasZero=false;
 
+
+	    }
+	  else{//If zero was detected
+
+	  }
+	  wasZero=true;
 
 
 	}
       CntBits=0;
-      outMess[Cnt]=(unsigned char)Car;
-      //Mess=Mess+1;
-      //TmpPtr=TmpPtr+1;
 
     }
-  outMess[Lenght]='\0';
-  TmpPtr[Cnt]='\0';
-  //vPortFree(TmpPtr);
-  TmpPtr=NULL;
+
+  frame->messageNrzi[Cnt]='\0';
+  frame->MessSizeWithNoPreamble=Cnt+1;
+  vPortFree(frame->messageWithAX25Flags);
+  frame->messageWithAX25Flags=NULL;
+
 
 
 }
@@ -553,56 +484,57 @@ void ZeroInsert(AX_25 *frame)
   unsigned int bitCountIn=0;
   unsigned int bitCountOut=0;
   unsigned int OnesCounter=0;
-  //Sécurité(au cas ou:))
-  if(frame->stuffedFrame==NULL){
-      frame->stuffedFrame=(unsigned char*)pvPortCalloc(strlen((portCHAR*)frame->message)+10,sizeof(unsigned portCHAR));
+  if(frame->messageBitStuffedBeforeTX==NULL){
+      frame->messageBitStuffedBeforeTX=(unsigned portCHAR*)pvPortCalloc(frame->MessSizeWithNoStuffed+10,sizeof(unsigned portCHAR));
   }
-
-  for(ParcourFrameIn=0;ParcourFrameIn<strlen((portCHAR*)frame->message);ParcourFrameIn++){
+  for(ParcourFrameIn=0;ParcourFrameIn<strlen((portCHAR*)frame->messageShiftedBeforeTX);ParcourFrameIn++){
       //Tester si outputCont=8
-      for(bitCountIn=0;bitCountIn<7;bitCountIn++){
-	  if((frame->message[ParcourFrameIn])&(1u<<bitCountIn)){
-	      OnesCounter=+1;
-	      if(OnesCounter==5){
+      while(bitCountIn<=7){//To 0 to 7 (8 bits)
+	  if(bitCountOut>=7){//7 bits in output
+	      bitCountOut=0;//Reset the output bit count
+	      maskOutput=1;
+	      ParcourFrameOut++;//Pass to the next char in output stream
+	  }
+	  if((frame->messageShiftedBeforeTX[ParcourFrameIn])&(1u<<bitCountIn)){//Si 1
+	      OnesCounter++;
+
+	      if(OnesCounter==5){//Five contiguous "1"detected
 		  //We construct the byte bit by bit
-		  frame->stuffedFrame[ParcourFrameOut]=frame->stuffedFrame[ParcourFrameOut]&(~(1u<<maskOutput));
-		  bitCountOut=+1;//Un bit de plus dans le stream(cas spécial)
-		  maskOutput=+1;
+		  //In this case no incrementing the input counter
+		  frame->messageBitStuffedBeforeTX[ParcourFrameOut]=frame->messageBitStuffedBeforeTX[ParcourFrameOut]&(~(1u<<maskOutput));
+		  bitCountOut++;//Un bit de plus dans le stream(cas spécial)
+		  maskOutput++;
 		  OnesCounter=0;
-		  frame->DebuGstuffingFunction=+1;
+		  frame->DebuGstuffingFunction++;
 	      }
-	      else{
-		  frame->stuffedFrame[ParcourFrameOut]=frame->stuffedFrame[ParcourFrameOut]|(1u<<maskOutput);
+	      else{//Normal case
+		  frame->messageBitStuffedBeforeTX[ParcourFrameOut]=(unsigned char)frame->messageShiftedBeforeTX[ParcourFrameOut]|(1u<<maskOutput);
 		  MaskInput=MaskInput+1;
-		  maskOutput=+1;
-		  bitCountOut=+1;//Un bit de plus également en sortie
+		  maskOutput++;
+		  bitCountOut++;//Un bit de plus également en sortie
+		  bitCountIn++;//One increment of bit counter in input
+
 
 	      }
 	  }
-	  else{
-	      frame->stuffedFrame[ParcourFrameOut]=frame->stuffedFrame[ParcourFrameOut]&(~(1u<<maskOutput));
+	  else{//0 was detected
+	      frame->messageBitStuffedBeforeTX[ParcourFrameOut]=(unsigned char)frame->messageShiftedBeforeTX[ParcourFrameOut]&(~(1u<<maskOutput));
 	      OnesCounter=0;//Raz du compteur
-	      MaskInput=+1;
-	      maskOutput=+1;
-	      //bitCountIn=+1;//Un bit de plus en entrée traité
-	      bitCountOut=+1;//Un bit de plus également en sortie
+	      MaskInput++;
+	      maskOutput++;
+	      bitCountOut++;
+	      bitCountIn++;//Un bit de plus en entrée traité
 
 	  }
       }
-      //Sync
-      if(bitCountOut==7){
-	  bitCountOut=0;
-	  maskOutput=0;
-	  ParcourFrameOut=+1;
-      }
-      if(bitCountIn==7)
-	{
-	  bitCountIn=0;
-	  MaskInput=0;
-	}
+      bitCountIn=0;
+      MaskInput=0;
+      ParcourFrameIn++;
   }
-
-
+  frame->messageBitStuffedBeforeTX[ParcourFrameOut]='\0';
+  frame->MessSizeNoNrzi=strlen((portCHAR*)frame->messageBitStuffedBeforeTX);
+  vPortFree(frame->messageShiftedBeforeTX);
+  frame->messageShiftedBeforeTX=NULL;
 }
 void ZeroRemove(AX_25 *frame)
 {
@@ -768,29 +700,32 @@ void AddPid(AX_25 *frame,AX_25_CFG *cfg_ax25){
 
 }
 void AddCRC(AX_25 *frame){
-  frame->message=frame->message+frame->MessSizeWithNoCRC+1;
-  frame->crc_hight=(Crc16(CCIT_INIT_FCS_CALC,frame->message,frame->MessSizeWithNoPayload)>>GET_HIGHT_BITS)&EIGHT_BIT_MASK;
-  frame->crc_low=(Crc16(CCIT_INIT_FCS_CALC,frame->message,frame->MessSizeWithNoPayload))&EIGHT_BIT_MASK;
+  //frame->message=frame->message+frame->MessSizeWithNoCRC+1;
+  frame->messageWithoutSyncFlags=NULL;
+  frame->messageWithoutSyncFlags=pvPortMalloc(frame->MessSizeWithNoCRC+3*sizeof(unsigned portCHAR));
+  strncpy((portCHAR*)frame->messageWithoutSyncFlags,(portCHAR*)frame->messageWithOutCRCOctet,frame->MessSizeWithNoCRC);
+  frame->crc_hight=(Crc16(CCIT_INIT_FCS_CALC,frame->messageWithOutCRCOctet,frame->MessSizeWithNoCRC)>>GET_HIGHT_BITS)&EIGHT_BIT_MASK;
+  frame->crc_low=(Crc16(CCIT_INIT_FCS_CALC,frame->messageWithOutCRCOctet,frame->MessSizeWithNoCRC))&EIGHT_BIT_MASK;
+  vPortFree(frame->messageWithOutCRCOctet);
+  frame->messageWithOutCRCOctet=NULL;
   frame->crc_low=~frame->crc_low;
   frame->crc_hight=~frame->crc_hight;
   frame->crc_low=Bit_Reverse(frame->crc_low);
   frame->crc_hight=Bit_Reverse(frame->crc_hight);
-  *frame->message++=(unsigned portCHAR)frame->crc_low;
-  *frame->message++=(unsigned portCHAR)frame->crc_hight;
-  *frame->message='\0';
-  frame->MessSizeWithNoStartAndStopFlags=strlen((portCHAR*)frame->message);
+  frame->messageWithoutSyncFlags[frame->MessSizeWithNoCRC+1]=(unsigned portCHAR)frame->crc_low;
+  frame->messageWithoutSyncFlags[frame->MessSizeWithNoCRC+2]=(unsigned portCHAR)frame->crc_hight;
+  frame->messageWithoutSyncFlags[frame->MessSizeWithNoCRC+3]='\0';
+  frame->MessSizeWithNoStartAndStopFlags=strlen((portCHAR*)frame->messageWithoutSyncFlags);
 
 }
 void PrepareFrameForTransmitt(AX_25 *frame){
-  portBASE_TYPE ulcountchar=0;
   frame->messageShiftedBeforeTX=NULL;
-  frame->messageShiftedBeforeTX=(unsigned portCHAR*)pvPortMalloc(strlen((portCHAR*)frame->message)+1*sizeof(unsigned portCHAR));
-  for(ulcountchar=0;ulcountchar<=strlen((portCHAR*)frame->messageShiftedBeforeTX);ulcountchar++){
-      frame->messageBitStuffedBeforeTX[ulcountchar]=frame->message[ulcountchar];
-  }
-  frame->messageShiftedBeforeTX[ulcountchar]='\0';
-  vPortFree(frame->message);
-  frame->message=NULL;
+  frame->messageShiftedBeforeTX=pvPortMalloc(frame->MessSizeWithNoStartAndStopFlags+1*sizeof(unsigned portCHAR));
+  strncpy((portCHAR*)frame->messageShiftedBeforeTX,(portCHAR*)frame->messageWithoutSyncFlags,frame->MessSizeWithNoStartAndStopFlags);
+  shiftmessageleft(frame->messageShiftedBeforeTX);
+  frame->MessSizeWithNoStuffed=strlen((portCHAR*)frame->messageShiftedBeforeTX);
+  vPortFree(frame->messageWithoutSyncFlags);
+  frame->messageWithoutSyncFlags=NULL;
 }
 void AddStartAndStopFlags(AX_25 *frame){
   frame->messageWithAX25Flags=NULL;
@@ -831,5 +766,5 @@ unsigned int  insertdata(unsigned char *p_Message,unsigned char *p_Data,unsigned
  */
 void vTimerX25callback(xTimerHandle Timer){
   //In this function unlock a semaphore
-  xSemaphoreGive(Stage3);
+  xSemaphoreGive(SemAllowAx25);
 }
