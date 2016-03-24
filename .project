@@ -5,6 +5,11 @@
 	<projects>
 		<project>FreeRTOS-Products</project>
 		<project>lpc17xx.cmsis.driver.library</project>
+		<project>periph_timer</project>
+		<project>periph_uart_rb</project>
+		<project>CMSISv2p00_LPC17xx</project>
+		<project>lpc_chip_175x_6x</project>
+		<project>freertos_blinky</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
